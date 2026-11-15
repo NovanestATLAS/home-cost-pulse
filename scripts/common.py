@@ -60,7 +60,13 @@ def load_config() -> dict:
     # Environment overrides (set by the GitHub Actions workflow).
     site_url = os.environ.get("SITE_URL", "").strip()
     if site_url:
-        cfg["site_url"] = site_url
+        # GitHub Pages reports http:// for a custom domain until "Enforce HTTPS" is ticked.
+        # When it names the same host as site.config.json, keep the configured (https) address.
+        from urllib.parse import urlparse
+        configured = cfg.get("site_url", "")
+        same_host = configured and urlparse(site_url).netloc.lower() == urlparse(configured).netloc.lower()
+        if not same_host:
+            cfg["site_url"] = site_url
     cfg["site_url"] = cfg.get("site_url", "").rstrip("/")
     base = os.environ.get("BASE_PATH", cfg.get("base_path", "")).strip()
     cfg["base_path"] = ("/" + base.strip("/")) if base.strip("/") else ""

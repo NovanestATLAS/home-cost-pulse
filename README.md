@@ -28,7 +28,7 @@ EIA publishes a new month roughly 8 weeks after it ends (for example, August 202
 
 | Path | What it does |
 |---|---|
-| `site.config.json` | Site name, address, contact email, ad code, analytics, verification codes |
+| `site.config.json` | Site name, address, contact form key, ad code, analytics, verification codes |
 | `data/states_meta.json` | 51 jurisdictions with slug, region and the city used for solar |
 | `data/seed/eia_seed_2026-07.json` | Real EIA numbers used until your EIA key is added |
 | `data/eia_residential_monthly.json` | Written by `fetch_eia.py` (committed by the workflow) |
@@ -86,6 +86,12 @@ business; Cloudflare's free plan allows commercial sites and has no bandwidth ca
 4. In GitHub add a repository variable `DEPLOY_TARGET` = `cloudflare` (Settings > Secrets and variables > Actions > Variables).
    The weekly workflow keeps fetching and committing data; each data commit triggers a Cloudflare rebuild.
 5. Free email at your domain: Cloudflare > Email > Email Routing, forward `hello@yourdomain.com` to your Gmail.
+
+## Contact form
+
+The contact page uses a Web3Forms form (`contact_form.web3forms_access_key` in `site.config.json`), so no email
+address appears anywhere on the site. Messages arrive in the inbox the key belongs to. Create a separate key at
+https://web3forms.com if you want this site's messages kept apart from your other sites.
 
 ## Search engines
 
