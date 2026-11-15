@@ -77,6 +77,11 @@ p, li { max-width: 72ch; }
 .site-header nav { display: flex; gap: 1.1rem; flex-wrap: nowrap; overflow-x: auto; padding: 0.4rem 0; max-width: 100%; scrollbar-width: none; }
 .site-header nav::-webkit-scrollbar { display: none; }
 .site-header nav a { color: #E7ECF1; text-decoration: none; font-size: 0.98rem; white-space: nowrap; }
+.nav-short { display: none; }
+@media (max-width: 720px) {
+  .nav-long { display: none; }
+  .nav-short { display: inline; }
+}
 @media (max-width: 520px) {
   .header-row { min-height: 0; padding: 0.5rem 0 0.2rem; }
   .site-header nav { gap: 0.9rem; width: 100%; }

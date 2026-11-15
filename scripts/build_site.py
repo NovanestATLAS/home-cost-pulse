@@ -231,12 +231,16 @@ class Site:
         for item in ([self.crumbs_ld(crumbs)] if crumbs else []) + (ld or []):
             head.append(jsonld(item))
 
-        navlinks = [("Electricity rates", "/electricity-rates/"), ("Calculators", "/calculators/"),
-                    ("Monthly reports", "/reports/"), ("How we calculate", "/methodology/")]
+        navlinks = [("Electricity rates", "/electricity-rates/", "Rates"), ("Calculators", "/calculators/", "Calculators"),
+                    ("Monthly reports", "/reports/", "Reports"), ("How we calculate", "/methodology/", "Methods")]
         if self.S["mode"] != "live":
             navlinks = [n for n in navlinks if n[1] != "/reports/"]
         current = ' aria-current="page"'
-        nav_html = "".join(f'<a href="{self.url(p)}"{current if nav == p else ""}>{esc(lbl)}</a>' for lbl, p in navlinks)
+        # Phones show the short label so the whole menu fits on one line; aria-label keeps the full name.
+        nav_html = "".join(
+            f'<a href="{self.url(p)}"{current if nav == p else ""} aria-label="{esc(lbl)}">'
+            f'<span class="nav-long">{esc(lbl)}</span><span class="nav-short" aria-hidden="true">{esc(short)}</span></a>'
+            for lbl, p, short in navlinks)
 
         tail = []
         if data_json is not None:
