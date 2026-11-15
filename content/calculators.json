@@ -8,14 +8,47 @@
       "title": "Electric Bill Calculator by State (Official EIA Rates)",
       "h1": "Electric bill calculator",
       "short": "Estimate a monthly bill from your usage and your state's current rate.",
-      "description": "Estimate your monthly and yearly electric bill from your kWh usage and your state's latest average residential rate from the U.S. Energy Information Administration.",
+      "description": "Estimate your monthly and yearly electric bill from your kWh usage and your state's latest average residential rate, using official EIA data.",
       "intro": "Pick your state to load its latest average residential price, then enter the kWh from your bill. Add your utility's fixed monthly charge if you know it.",
       "units": false,
       "fields": [
-        {"id": "state", "type": "state", "label": "State"},
-        {"id": "kwh", "type": "number", "label": "Monthly usage", "unit": "kWh", "default": 869, "min": 0, "step": 1, "bind": "kwh", "help": "Your bill shows this as kWh used. The default is your state's average home."},
-        {"id": "price", "type": "number", "label": "Price per kWh", "unit": "¢", "default": 18.31, "min": 0, "step": 0.01, "bind": "price", "help": "Loads your state's latest average. Replace it with the rate on your bill if you have it."},
-        {"id": "fixed", "type": "number", "label": "Fixed monthly charge", "unit": "$", "default": 0, "min": 0, "step": 0.01, "help": "Many utilities add a customer charge, often around $10 to $25 a month."}
+        {
+          "id": "state",
+          "type": "state",
+          "label": "State"
+        },
+        {
+          "id": "kwh",
+          "type": "number",
+          "label": "Monthly usage",
+          "unit": "kWh",
+          "default": 869,
+          "min": 0,
+          "step": 1,
+          "bind": "kwh",
+          "help": "Your bill shows this as kWh used. The default is your state's average home."
+        },
+        {
+          "id": "price",
+          "type": "number",
+          "label": "Price per kWh",
+          "unit": "¢",
+          "default": 18.31,
+          "min": 0,
+          "step": 0.01,
+          "bind": "price",
+          "help": "Loads your state's latest average. Replace it with the rate on your bill if you have it."
+        },
+        {
+          "id": "fixed",
+          "type": "number",
+          "label": "Fixed monthly charge",
+          "unit": "$",
+          "default": 0,
+          "min": 0,
+          "step": 0.01,
+          "help": "Many utilities add a customer charge, often around $10 to $25 a month."
+        }
       ],
       "how": [
         "Energy cost = monthly kWh × price per kWh. The bill estimate adds your fixed monthly charge on top.",
@@ -26,10 +59,20 @@
         "If your usage is far above your state's average in a mild month, look for one big load: an old water heater, a pool pump or electric resistance heat."
       ],
       "faqs": [
-        {"q": "How do I find my monthly kWh?", "a": "It is printed on every bill, usually next to the meter readings as 'kWh used' or 'usage'. Many utilities also show the last 12 months as a chart."},
-        {"q": "Why is my real bill higher than the estimate?", "a": "State averages smooth out tiers, time-of-use pricing and local taxes. Enter the per-kWh rate from your own bill and your fixed charge for a closer number."}
+        {
+          "q": "How do I find my monthly kWh?",
+          "a": "It is printed on every bill, usually next to the meter readings as 'kWh used' or 'usage'. Many utilities also show the last 12 months as a chart."
+        },
+        {
+          "q": "Why is my real bill higher than the estimate?",
+          "a": "State averages smooth out tiers, time-of-use pricing and local taxes. Enter the per-kWh rate from your own bill and your fixed charge for a closer number."
+        }
       ],
-      "related": ["appliance-energy-cost", "ev-charging-cost", "solar-payback"]
+      "related": [
+        "appliance-energy-cost",
+        "ev-charging-cost",
+        "solar-payback"
+      ]
     },
     {
       "id": "appliance-energy-cost",
@@ -42,23 +85,100 @@
       "intro": "Choose an appliance or type its wattage from the label, then set how long it runs. The price loads from your state's latest average.",
       "units": false,
       "fields": [
-        {"id": "state", "type": "state", "label": "State"},
-        {"id": "preset", "type": "select", "label": "Appliance", "options": [
-          {"value": "1500", "label": "Space heater (1,500 W)"},
-          {"value": "900", "label": "Window air conditioner (900 W)"},
-          {"value": "3500", "label": "Central air conditioner (3,500 W)"},
-          {"value": "3000", "label": "Electric clothes dryer (3,000 W)"},
-          {"value": "7200", "label": "Level 2 EV charger (7,200 W)"},
-          {"value": "500", "label": "Dehumidifier (500 W)"},
-          {"value": "1100", "label": "Pool pump (1,100 W)"},
-          {"value": "400", "label": "Gaming PC (400 W)"},
-          {"value": "100", "label": "LED TV (100 W)"},
-          {"value": "custom", "label": "Something else"}
-        ], "default": "1500", "sets": "watts"},
-        {"id": "watts", "type": "number", "label": "Power draw", "unit": "W", "default": 1500, "min": 0, "step": 1, "help": "Typical running watts. Check the label or manual for your model."},
-        {"id": "hours", "type": "number", "label": "Hours per day", "unit": "h", "default": 8, "min": 0, "max": 24, "step": 0.25},
-        {"id": "days", "type": "number", "label": "Days per month", "unit": "days", "default": 30, "min": 0, "max": 31, "step": 1},
-        {"id": "price", "type": "number", "label": "Price per kWh", "unit": "¢", "default": 18.31, "min": 0, "step": 0.01, "bind": "price"}
+        {
+          "id": "state",
+          "type": "state",
+          "label": "State"
+        },
+        {
+          "id": "preset",
+          "type": "select",
+          "label": "Appliance",
+          "options": [
+            {
+              "value": "1500",
+              "label": "Space heater (1,500 W)"
+            },
+            {
+              "value": "900",
+              "label": "Window air conditioner (900 W)"
+            },
+            {
+              "value": "3500",
+              "label": "Central air conditioner (3,500 W)"
+            },
+            {
+              "value": "3000",
+              "label": "Electric clothes dryer (3,000 W)"
+            },
+            {
+              "value": "7200",
+              "label": "Level 2 EV charger (7,200 W)"
+            },
+            {
+              "value": "500",
+              "label": "Dehumidifier (500 W)"
+            },
+            {
+              "value": "1100",
+              "label": "Pool pump (1,100 W)"
+            },
+            {
+              "value": "400",
+              "label": "Gaming PC (400 W)"
+            },
+            {
+              "value": "100",
+              "label": "LED TV (100 W)"
+            },
+            {
+              "value": "custom",
+              "label": "Something else"
+            }
+          ],
+          "default": "1500",
+          "sets": "watts"
+        },
+        {
+          "id": "watts",
+          "type": "number",
+          "label": "Power draw",
+          "unit": "W",
+          "default": 1500,
+          "min": 0,
+          "step": 1,
+          "help": "Typical running watts. Check the label or manual for your model."
+        },
+        {
+          "id": "hours",
+          "type": "number",
+          "label": "Hours per day",
+          "unit": "h",
+          "default": 8,
+          "min": 0,
+          "max": 24,
+          "step": 0.25
+        },
+        {
+          "id": "days",
+          "type": "number",
+          "label": "Days per month",
+          "unit": "days",
+          "default": 30,
+          "min": 0,
+          "max": 31,
+          "step": 1
+        },
+        {
+          "id": "price",
+          "type": "number",
+          "label": "Price per kWh",
+          "unit": "¢",
+          "default": 18.31,
+          "min": 0,
+          "step": 0.01,
+          "bind": "price"
+        }
       ],
       "how": [
         "kWh = watts ÷ 1,000 × hours. Cost = kWh × price per kWh.",
@@ -69,10 +189,20 @@
         "Heating and cooling are usually the biggest lines on a bill, so they are where savings show up first."
       ],
       "faqs": [
-        {"q": "How much does a 1,500 W space heater cost per hour?", "a": "It uses 1.5 kWh per hour, so multiply 1.5 by your price per kWh. At 18¢ that is 27¢ an hour."},
-        {"q": "Where do I find an appliance's wattage?", "a": "On the rating label or nameplate (often on the back or inside the door) and in the manual. If only amps are listed, watts ≈ amps × volts."}
+        {
+          "q": "How much does a 1,500 W space heater cost per hour?",
+          "a": "It uses 1.5 kWh per hour, so multiply 1.5 by your price per kWh. At 18¢ that is 27¢ an hour."
+        },
+        {
+          "q": "Where do I find an appliance's wattage?",
+          "a": "On the rating label or nameplate (often on the back or inside the door) and in the manual. If only amps are listed, watts ≈ amps × volts."
+        }
       ],
-      "related": ["electric-bill", "ev-charging-cost", "solar-payback"]
+      "related": [
+        "electric-bill",
+        "ev-charging-cost",
+        "solar-payback"
+      ]
     },
     {
       "id": "ev-charging-cost",
@@ -85,13 +215,70 @@
       "intro": "Enter how far you drive and your car's efficiency. The electricity price loads from your state's latest average; type your local gas price to compare.",
       "units": false,
       "fields": [
-        {"id": "state", "type": "state", "label": "State"},
-        {"id": "price", "type": "number", "label": "Electricity price", "unit": "¢/kWh", "default": 18.31, "min": 0, "step": 0.01, "bind": "price"},
-        {"id": "miles", "type": "number", "label": "Miles per month", "unit": "mi", "default": 1000, "min": 0, "step": 10},
-        {"id": "efficiency", "type": "number", "label": "EV efficiency", "unit": "mi/kWh", "default": 3.5, "min": 0.5, "step": 0.1, "help": "Most EVs travel roughly 3 to 4 miles per kWh. Check your car's rating."},
-        {"id": "loss", "type": "number", "label": "Charging losses", "unit": "%", "default": 10, "min": 0, "max": 40, "step": 1, "help": "Energy lost between the outlet and the battery, often around 10%."},
-        {"id": "mpg", "type": "number", "label": "Gas car fuel economy", "unit": "mpg", "default": 30, "min": 1, "step": 1},
-        {"id": "gas", "type": "number", "label": "Your gas price", "unit": "$/gal", "default": 3.5, "min": 0, "step": 0.01, "help": "Type the price at your local station."}
+        {
+          "id": "state",
+          "type": "state",
+          "label": "State"
+        },
+        {
+          "id": "price",
+          "type": "number",
+          "label": "Electricity price",
+          "unit": "¢/kWh",
+          "default": 18.31,
+          "min": 0,
+          "step": 0.01,
+          "bind": "price"
+        },
+        {
+          "id": "miles",
+          "type": "number",
+          "label": "Miles per month",
+          "unit": "mi",
+          "default": 1000,
+          "min": 0,
+          "step": 10
+        },
+        {
+          "id": "efficiency",
+          "type": "number",
+          "label": "EV efficiency",
+          "unit": "mi/kWh",
+          "default": 3.5,
+          "min": 0.5,
+          "step": 0.1,
+          "help": "Most EVs travel roughly 3 to 4 miles per kWh. Check your car's rating."
+        },
+        {
+          "id": "loss",
+          "type": "number",
+          "label": "Charging losses",
+          "unit": "%",
+          "default": 10,
+          "min": 0,
+          "max": 40,
+          "step": 1,
+          "help": "Energy lost between the outlet and the battery, often around 10%."
+        },
+        {
+          "id": "mpg",
+          "type": "number",
+          "label": "Gas car fuel economy",
+          "unit": "mpg",
+          "default": 30,
+          "min": 1,
+          "step": 1
+        },
+        {
+          "id": "gas",
+          "type": "number",
+          "label": "Your gas price",
+          "unit": "$/gal",
+          "default": 3.5,
+          "min": 0,
+          "step": 0.01,
+          "help": "Type the price at your local station."
+        }
       ],
       "how": [
         "kWh from the outlet = miles ÷ miles per kWh ÷ (1 − charging losses). Charging cost = kWh × electricity price.",
@@ -102,10 +289,20 @@
         "Some utilities offer cheaper overnight EV rates; ask yours and enter that price."
       ],
       "faqs": [
-        {"q": "How many kWh does it take to drive 100 miles?", "a": "At 3.5 miles per kWh, about 28.6 kWh reaches the battery, or about 31.7 kWh from the outlet with 10% charging losses."},
-        {"q": "Is charging at home always cheaper than gas?", "a": "At typical U.S. home electricity prices it usually is, but in states with very high rates and for very efficient gas cars the gap narrows. The calculator shows your own numbers."}
+        {
+          "q": "How many kWh does it take to drive 100 miles?",
+          "a": "At 3.5 miles per kWh, about 28.6 kWh reaches the battery, or about 31.7 kWh from the outlet with 10% charging losses."
+        },
+        {
+          "q": "Is charging at home always cheaper than gas?",
+          "a": "At typical U.S. home electricity prices it usually is, but in states with very high rates and for very efficient gas cars the gap narrows. The calculator shows your own numbers."
+        }
       ],
-      "related": ["electric-bill", "appliance-energy-cost", "solar-payback"]
+      "related": [
+        "electric-bill",
+        "appliance-energy-cost",
+        "solar-payback"
+      ]
     },
     {
       "id": "solar-payback",
@@ -114,19 +311,96 @@
       "title": "Solar Payback Calculator 2026 by State (No Federal Credit)",
       "h1": "Solar payback calculator",
       "short": "Years to pay back a rooftop system, using NLR PVWatts output for your state.",
-      "description": "Estimate rooftop solar payback and 25-year savings using your state's PVWatts production estimate and latest electricity price, updated for 2026 without the expired federal credit.",
+      "description": "Estimate rooftop solar payback and 25-year savings from your state's PVWatts production and latest electricity price, without the expired federal credit.",
       "intro": "Production per kW loads from the NLR PVWatts model for a large city in your state. Enter the price from your installer's quote for a real answer.",
       "units": false,
       "fields": [
-        {"id": "state", "type": "state", "label": "State"},
-        {"id": "size", "type": "number", "label": "System size", "unit": "kW", "default": 7, "min": 0.5, "step": 0.5},
-        {"id": "cost_per_watt", "type": "number", "label": "Installed price per watt", "unit": "$/W", "default": 3.0, "min": 0, "step": 0.05, "help": "From your quote: total price ÷ system watts. Quotes vary widely by state and installer."},
-        {"id": "incentives", "type": "number", "label": "Rebates and incentives", "unit": "$", "default": 0, "min": 0, "step": 50, "help": "State or utility rebates only. The 30% federal credit for homeowner-owned systems (Section 25D) ended on December 31, 2025."},
-        {"id": "production", "type": "number", "label": "Yearly output per kW", "unit": "kWh/kW", "default": 1300, "min": 100, "step": 1, "bind": "solar", "help": "Loads the NLR PVWatts estimate for your state. Your installer's estimate for your roof is better."},
-        {"id": "price", "type": "number", "label": "Electricity price", "unit": "¢/kWh", "default": 18.31, "min": 0, "step": 0.01, "bind": "price"},
-        {"id": "credit_share", "type": "number", "label": "Value of each solar kWh", "unit": "% of retail", "default": 100, "min": 0, "max": 100, "step": 1, "help": "100% if every kWh offsets a full retail kWh. Lower it if your utility credits exports at a lower rate."},
-        {"id": "escalation", "type": "number", "label": "Yearly electricity price rise", "unit": "%", "default": 3, "min": -5, "max": 15, "step": 0.5},
-        {"id": "degradation", "type": "number", "label": "Panel output loss per year", "unit": "%", "default": 0.5, "min": 0, "max": 3, "step": 0.1}
+        {
+          "id": "state",
+          "type": "state",
+          "label": "State"
+        },
+        {
+          "id": "size",
+          "type": "number",
+          "label": "System size",
+          "unit": "kW",
+          "default": 7,
+          "min": 0.5,
+          "step": 0.5
+        },
+        {
+          "id": "cost_per_watt",
+          "type": "number",
+          "label": "Installed price per watt",
+          "unit": "$/W",
+          "default": 3.0,
+          "min": 0,
+          "step": 0.05,
+          "help": "From your quote: total price ÷ system watts. Quotes vary widely by state and installer."
+        },
+        {
+          "id": "incentives",
+          "type": "number",
+          "label": "Rebates and incentives",
+          "unit": "$",
+          "default": 0,
+          "min": 0,
+          "step": 50,
+          "help": "State or utility rebates only. The 30% federal credit for homeowner-owned systems (Section 25D) ended on December 31, 2025."
+        },
+        {
+          "id": "production",
+          "type": "number",
+          "label": "Yearly output per kW",
+          "unit": "kWh/kW",
+          "default": 1300,
+          "min": 100,
+          "step": 1,
+          "bind": "solar",
+          "help": "Loads the NLR PVWatts estimate for your state. Your installer's estimate for your roof is better."
+        },
+        {
+          "id": "price",
+          "type": "number",
+          "label": "Electricity price",
+          "unit": "¢/kWh",
+          "default": 18.31,
+          "min": 0,
+          "step": 0.01,
+          "bind": "price"
+        },
+        {
+          "id": "credit_share",
+          "type": "number",
+          "label": "Value of each solar kWh",
+          "unit": "% of retail",
+          "default": 100,
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "help": "100% if every kWh offsets a full retail kWh. Lower it if your utility credits exports at a lower rate."
+        },
+        {
+          "id": "escalation",
+          "type": "number",
+          "label": "Yearly electricity price rise",
+          "unit": "%",
+          "default": 3,
+          "min": -5,
+          "max": 15,
+          "step": 0.5
+        },
+        {
+          "id": "degradation",
+          "type": "number",
+          "label": "Panel output loss per year",
+          "unit": "%",
+          "default": 0.5,
+          "min": 0,
+          "max": 3,
+          "step": 0.1
+        }
       ],
       "how": [
         "System cost = size × 1,000 × price per watt − rebates. Year-one output = size × yearly output per kW.",
@@ -137,206 +411,651 @@
         "If your utility pays less for exported power, a battery or shifting use to daytime raises the value of each kWh."
       ],
       "faqs": [
-        {"q": "Is the 30% federal solar tax credit still available in 2026?", "a": "Not for systems you buy. The residential clean energy credit (Section 25D) ended on December 31, 2025. Companies that lease systems or sell power under a PPA can still claim a business credit, which may lower those offers."},
-        {"q": "Where does the production estimate come from?", "a": "From PVWatts, the solar model run by the National Laboratory of the Rockies (formerly NREL), for a fixed roof-mounted system facing south at a 20° tilt with 14% system losses."}
+        {
+          "q": "Is the 30% federal solar tax credit still available in 2026?",
+          "a": "Not for systems you buy. The residential clean energy credit (Section 25D) ended on December 31, 2025. Companies that lease systems or sell power under a PPA can still claim a business credit, which may lower those offers."
+        },
+        {
+          "q": "Where does the production estimate come from?",
+          "a": "From PVWatts, the solar model run by the National Laboratory of the Rockies (formerly NREL), for a fixed roof-mounted system facing south at a 20° tilt with 14% system losses."
+        }
       ],
-      "related": ["electric-bill", "appliance-energy-cost", "ev-charging-cost"]
+      "related": [
+        "electric-bill",
+        "appliance-energy-cost",
+        "ev-charging-cost"
+      ]
     },
     {
       "id": "concrete",
       "group": "projects",
       "slug": "concrete",
-      "title": "Concrete Calculator: Cubic Yards and Bags for a Slab",
+      "title": "Concrete Calculator: Cubic Yards, Bags and Cost for a Slab",
       "h1": "Concrete calculator",
-      "short": "Cubic yards and 40, 60 or 80 lb bags for a slab, patio or footing.",
-      "description": "Work out how much concrete you need for a slab in cubic yards or cubic meters, and how many 40, 60 or 80 lb bags of premix to buy.",
-      "intro": "Enter the slab's length, width and thickness. Add a little extra for uneven ground and spillage.",
+      "short": "Cubic yards, bags and material cost for a slab, patio or footing.",
+      "description": "Work out how much concrete a slab needs in cubic yards or cubic meters, how many 40, 60 or 80 lb bags to buy, and what it costs at your local price.",
+      "intro": "Enter the slab's length, width and thickness. Add a little extra for uneven ground and spillage, then add your local price to see the cost.",
       "units": true,
       "fields": [
-        {"id": "length", "type": "number", "kind": "length", "label": "Length", "default": 10, "min": 0, "step": 0.1},
-        {"id": "width", "type": "number", "kind": "length", "label": "Width", "default": 10, "min": 0, "step": 0.1},
-        {"id": "thickness", "type": "number", "kind": "small", "label": "Thickness", "default": 4, "min": 0, "step": 0.25, "help": "Patios and walkways are usually 4 in (10 cm) thick; driveways often 5 to 6 in."},
-        {"id": "waste", "type": "number", "label": "Extra for waste", "unit": "%", "default": 10, "min": 0, "max": 50, "step": 1}
+        {
+          "id": "length",
+          "type": "number",
+          "kind": "length",
+          "label": "Length",
+          "default": 10,
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "id": "width",
+          "type": "number",
+          "kind": "length",
+          "label": "Width",
+          "default": 10,
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "id": "thickness",
+          "type": "number",
+          "kind": "small",
+          "label": "Thickness",
+          "default": 4,
+          "min": 0,
+          "step": 0.25,
+          "help": "Patios and walkways are usually 4 in (10 cm) thick; driveways often 5 to 6 in."
+        },
+        {
+          "id": "waste",
+          "type": "number",
+          "label": "Extra for waste",
+          "unit": "%",
+          "default": 10,
+          "min": 0,
+          "max": 50,
+          "step": 1
+        },
+        {
+          "id": "price_yard",
+          "type": "number",
+          "label": "Ready-mix price",
+          "optional": true,
+          "min": 0,
+          "step": 1,
+          "help": "Optional. Ask a local supplier for the delivered price.",
+          "kind": "price_volume"
+        },
+        {
+          "id": "price_bag",
+          "type": "number",
+          "label": "Price per 80 lb bag",
+          "optional": true,
+          "min": 0,
+          "step": 0.01,
+          "help": "Optional. The shelf price at your store.",
+          "unit": "$ per bag",
+          "only": "us"
+        }
       ],
       "how": [
         "Volume = length × width × thickness, plus the extra percentage. One cubic yard is 27 cubic feet.",
-        "Premixed bags yield about 0.60 ft³ (80 lb), 0.45 ft³ (60 lb) and 0.30 ft³ (40 lb). Check the bag, because yields vary by brand."
+        "Premixed bags yield about 0.60 ft³ (80 lb), 0.45 ft³ (60 lb) and 0.30 ft³ (40 lb). Check the bag, because yields vary by brand.",
+        "Cost = quantity × the price you enter: cubic yards × the ready-mix price, or the number of 80 lb bags × the price per bag. We never fill in a price for you, because prices change by store and by week."
       ],
       "tips": [
         "Above roughly one cubic yard, ready-mix delivery is often cheaper and faster than mixing bags.",
         "Measure thickness in several spots; a 4 in slab that ends up 4.5 in thick needs 12.5% more concrete."
       ],
       "faqs": [
-        {"q": "How many 80 lb bags make a cubic yard?", "a": "About 45. A cubic yard is 27 ft³ and each 80 lb bag yields about 0.60 ft³."},
-        {"q": "How much concrete for a 10 × 10 slab, 4 inches thick?", "a": "33.3 ft³, or 1.23 cubic yards, before extra. With 10% extra that is about 1.36 yd³ or 62 bags of 80 lb."}
+        {
+          "q": "How many 80 lb bags make a cubic yard?",
+          "a": "About 45. A cubic yard is 27 ft³ and each 80 lb bag yields about 0.60 ft³."
+        },
+        {
+          "q": "How much concrete for a 10 × 10 slab, 4 inches thick?",
+          "a": "33.3 ft³, or 1.23 cubic yards, before extra. With 10% extra that is about 1.36 yd³ or 62 bags of 80 lb."
+        },
+        {
+          "q": "Is ready-mix cheaper than bags?",
+          "a": "Enter both prices and compare the two cost lines. Bags often win for small jobs, because ready-mix suppliers usually charge extra for small loads. Ask about that fee when you get a quote."
+        }
       ],
-      "related": ["gravel-mulch", "flooring-tile", "roofing"]
+      "related": [
+        "gravel-mulch",
+        "flooring-tile",
+        "roofing"
+      ]
     },
     {
       "id": "gravel-mulch",
       "group": "projects",
       "slug": "gravel-mulch",
-      "title": "Gravel, Mulch and Topsoil Calculator: Cubic Yards and Tons",
+      "title": "Gravel, Mulch and Topsoil Calculator: Yards, Tons and Cost",
       "h1": "Gravel, mulch and topsoil calculator",
-      "short": "Cubic yards, tons and bags for gravel, sand, topsoil or mulch.",
-      "description": "Calculate how many cubic yards or cubic meters of gravel, sand, topsoil or mulch you need, with an estimate in tons and in 2 ft³ bags.",
+      "short": "Cubic yards, tons, bags and material cost for gravel, sand, topsoil or mulch.",
+      "description": "Calculate how many cubic yards or cubic meters of gravel, sand, topsoil or mulch you need, the weight in tons, and the cost at your supplier's price.",
       "intro": "Choose the material, then enter the area and depth you want to cover.",
       "units": true,
       "fields": [
-        {"id": "material", "type": "select", "label": "Material", "options": [
-          {"value": "1.4", "label": "Gravel or crushed stone"},
-          {"value": "1.35", "label": "Sand"},
-          {"value": "1.1", "label": "Topsoil"},
-          {"value": "0", "label": "Mulch (sold by volume)"}
-        ], "default": "1.4", "sets": "density"},
-        {"id": "length", "type": "number", "kind": "length", "label": "Length", "default": 20, "min": 0, "step": 0.1},
-        {"id": "width", "type": "number", "kind": "length", "label": "Width", "default": 10, "min": 0, "step": 0.1},
-        {"id": "depth", "type": "number", "kind": "small", "label": "Depth", "default": 3, "min": 0, "step": 0.25, "help": "Mulch beds: 2 to 3 in. Gravel paths: 3 to 4 in."},
-        {"id": "density", "type": "number", "kind": "density", "label": "Weight per volume", "default": 1.4, "min": 0, "step": 0.05, "help": "Typical dry values. Wet material weighs more; ask your supplier."},
-        {"id": "waste", "type": "number", "label": "Extra", "unit": "%", "default": 5, "min": 0, "max": 50, "step": 1}
+        {
+          "id": "material",
+          "type": "select",
+          "label": "Material",
+          "options": [
+            {
+              "value": "1.4",
+              "label": "Gravel or crushed stone"
+            },
+            {
+              "value": "1.35",
+              "label": "Sand"
+            },
+            {
+              "value": "1.1",
+              "label": "Topsoil"
+            },
+            {
+              "value": "0",
+              "label": "Mulch (sold by volume)"
+            }
+          ],
+          "default": "1.4",
+          "sets": "density"
+        },
+        {
+          "id": "length",
+          "type": "number",
+          "kind": "length",
+          "label": "Length",
+          "default": 20,
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "id": "width",
+          "type": "number",
+          "kind": "length",
+          "label": "Width",
+          "default": 10,
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "id": "depth",
+          "type": "number",
+          "kind": "small",
+          "label": "Depth",
+          "default": 3,
+          "min": 0,
+          "step": 0.25,
+          "help": "Mulch beds: 2 to 3 in. Gravel paths: 3 to 4 in."
+        },
+        {
+          "id": "density",
+          "type": "number",
+          "kind": "density",
+          "label": "Weight per volume",
+          "default": 1.4,
+          "min": 0,
+          "step": 0.05,
+          "help": "Typical dry values. Wet material weighs more; ask your supplier."
+        },
+        {
+          "id": "waste",
+          "type": "number",
+          "label": "Extra",
+          "unit": "%",
+          "default": 5,
+          "min": 0,
+          "max": 50,
+          "step": 1
+        },
+        {
+          "id": "price_yard",
+          "type": "number",
+          "label": "Material price",
+          "optional": true,
+          "min": 0,
+          "step": 1,
+          "help": "Optional. Suppliers usually quote bulk material by volume.",
+          "kind": "price_volume"
+        }
       ],
       "how": [
         "Volume = length × width × depth, plus the extra percentage. One cubic yard is 27 cubic feet.",
-        "Weight = volume × weight per cubic yard. Typical figures: about 1.4 tons per yd³ for gravel, 1.35 for sand and 1.1 for topsoil."
+        "Weight = volume × weight per cubic yard. Typical figures: about 1.4 tons per yd³ for gravel, 1.35 for sand and 1.1 for topsoil.",
+        "Cost = volume × the price you enter. Delivery is usually charged separately."
       ],
       "tips": [
         "Bulk delivery is priced per cubic yard or per ton; bags make sense for small beds.",
         "Lay landscape fabric under gravel paths so the stone doesn't sink into the soil."
       ],
       "faqs": [
-        {"q": "How many bags of mulch are in a cubic yard?", "a": "13.5 bags of 2 ft³, because a cubic yard is 27 ft³."},
-        {"q": "How much does a cubic yard of gravel weigh?", "a": "Usually around 1.4 tons (about 2,800 lb), depending on the stone size and how wet it is."}
+        {
+          "q": "How many bags of mulch are in a cubic yard?",
+          "a": "13.5 bags of 2 ft³, because a cubic yard is 27 ft³."
+        },
+        {
+          "q": "How much does a cubic yard of gravel weigh?",
+          "a": "Usually around 1.4 tons (about 2,800 lb), depending on the stone size and how wet it is."
+        }
       ],
-      "related": ["concrete", "paint", "roofing"]
+      "related": [
+        "concrete",
+        "paint",
+        "roofing"
+      ]
     },
     {
       "id": "paint",
       "group": "projects",
       "slug": "paint",
-      "title": "Paint Calculator: How Many Gallons for a Room",
+      "title": "Paint Calculator: Gallons and Cost for a Room",
       "h1": "Paint calculator",
-      "short": "Gallons or liters for a room's walls and ceiling, minus doors and windows.",
-      "description": "Estimate how much paint you need for a room's walls and ceiling, in gallons or liters, after subtracting doors and windows.",
+      "short": "Gallons or liters for a room's walls and ceiling, and what the paint costs.",
+      "description": "Estimate how much paint a room's walls and ceiling need, in gallons or liters, after subtracting doors and windows, and what it costs at your store's price.",
       "intro": "Enter the room's size and how many doors and windows it has. Most paints cover 350 to 400 square feet per gallon per coat.",
       "units": true,
       "fields": [
-        {"id": "length", "type": "number", "kind": "length", "label": "Room length", "default": 12, "min": 0, "step": 0.1},
-        {"id": "width", "type": "number", "kind": "length", "label": "Room width", "default": 12, "min": 0, "step": 0.1},
-        {"id": "height", "type": "number", "kind": "length", "label": "Wall height", "default": 8, "min": 0, "step": 0.1},
-        {"id": "doors", "type": "number", "label": "Doors", "unit": "", "default": 1, "min": 0, "step": 1, "help": "Each door subtracts 20 ft² (1.9 m²)."},
-        {"id": "windows", "type": "number", "label": "Windows", "unit": "", "default": 2, "min": 0, "step": 1, "help": "Each window subtracts 15 ft² (1.4 m²)."},
-        {"id": "coats", "type": "number", "label": "Coats", "unit": "", "default": 2, "min": 1, "step": 1},
-        {"id": "coverage", "type": "number", "kind": "coverage", "label": "Coverage", "default": 350, "min": 1, "step": 1, "help": "From the can's label, per coat."},
-        {"id": "ceiling", "type": "checkbox", "label": "Paint the ceiling too", "default": false}
+        {
+          "id": "length",
+          "type": "number",
+          "kind": "length",
+          "label": "Room length",
+          "default": 12,
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "id": "width",
+          "type": "number",
+          "kind": "length",
+          "label": "Room width",
+          "default": 12,
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "id": "height",
+          "type": "number",
+          "kind": "length",
+          "label": "Wall height",
+          "default": 8,
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "id": "doors",
+          "type": "number",
+          "label": "Doors",
+          "unit": "",
+          "default": 1,
+          "min": 0,
+          "step": 1,
+          "help": "Each door subtracts 20 ft² (1.9 m²)."
+        },
+        {
+          "id": "windows",
+          "type": "number",
+          "label": "Windows",
+          "unit": "",
+          "default": 2,
+          "min": 0,
+          "step": 1,
+          "help": "Each window subtracts 15 ft² (1.4 m²)."
+        },
+        {
+          "id": "coats",
+          "type": "number",
+          "label": "Coats",
+          "unit": "",
+          "default": 2,
+          "min": 1,
+          "step": 1
+        },
+        {
+          "id": "coverage",
+          "type": "number",
+          "kind": "coverage",
+          "label": "Coverage",
+          "default": 350,
+          "min": 1,
+          "step": 1,
+          "help": "From the can's label, per coat."
+        },
+        {
+          "id": "ceiling",
+          "type": "checkbox",
+          "label": "Paint the ceiling too",
+          "default": false
+        },
+        {
+          "id": "price_gal",
+          "type": "number",
+          "label": "Paint price",
+          "optional": true,
+          "min": 0,
+          "step": 0.01,
+          "help": "Optional. The shelf price of the paint you chose.",
+          "kind": "price_liquid"
+        }
       ],
       "how": [
         "Wall area = 2 × (length + width) × height. Doors and windows are subtracted, and the ceiling (length × width) is added if you tick it.",
-        "Paint needed = area × coats ÷ coverage per gallon (or liter)."
+        "Paint needed = area × coats ÷ coverage per gallon (or liter).",
+        "Cost = whole gallons (or liters) to buy × the price you enter."
       ],
       "tips": [
         "Buy whole gallons for the main color and keep a little for touch-ups.",
         "A primer coat helps when you cover a dark color or bare drywall."
       ],
       "faqs": [
-        {"q": "How much paint for a 12 × 12 room?", "a": "With 8 ft walls, one door and two windows, about 334 ft² of wall. Two coats at 350 ft² per gallon need about 1.9 gallons, so buy 2."},
-        {"q": "Do I really need two coats?", "a": "Usually yes for an even color, especially when changing colors. Some one-coat paints cover well over a similar shade."}
+        {
+          "q": "How much paint for a 12 × 12 room?",
+          "a": "With 8 ft walls, one door and two windows, about 334 ft² of wall. Two coats at 350 ft² per gallon need about 1.9 gallons, so buy 2."
+        },
+        {
+          "q": "Do I really need two coats?",
+          "a": "Usually yes for an even color, especially when changing colors. Some one-coat paints cover well over a similar shade."
+        }
       ],
-      "related": ["drywall", "flooring-tile", "concrete"]
+      "related": [
+        "drywall",
+        "flooring-tile",
+        "concrete"
+      ]
     },
     {
       "id": "drywall",
       "group": "projects",
       "slug": "drywall",
-      "title": "Drywall Calculator: Sheets and Screws for a Room",
+      "title": "Drywall Calculator: Sheets, Screws and Cost for a Room",
       "h1": "Drywall calculator",
-      "short": "How many 4×8, 4×10 or 4×12 sheets a room needs, plus screws.",
-      "description": "Calculate how many drywall sheets you need for a room's walls and ceiling, with an allowance for waste and an estimate of screws.",
+      "short": "How many 4×8, 4×10 or 4×12 sheets a room needs, plus screws and sheet cost.",
+      "description": "Calculate how many drywall sheets a room's walls and ceiling need, with an allowance for waste, an estimate of screws and the cost at your price per sheet.",
       "intro": "Enter the room's size and pick a sheet size. Openings are not subtracted, because the offcuts rarely get reused.",
       "units": true,
       "fields": [
-        {"id": "length", "type": "number", "kind": "length", "label": "Room length", "default": 12, "min": 0, "step": 0.1},
-        {"id": "width", "type": "number", "kind": "length", "label": "Room width", "default": 12, "min": 0, "step": 0.1},
-        {"id": "height", "type": "number", "kind": "length", "label": "Wall height", "default": 8, "min": 0, "step": 0.1},
-        {"id": "sheet", "type": "select", "label": "Sheet size", "options": [
-          {"value": "32", "label": "4 × 8 ft (about 1.2 × 2.4 m)"},
-          {"value": "40", "label": "4 × 10 ft (about 1.2 × 3.0 m)"},
-          {"value": "48", "label": "4 × 12 ft (about 1.2 × 3.6 m)"}
-        ], "default": "32"},
-        {"id": "waste", "type": "number", "label": "Extra for waste", "unit": "%", "default": 10, "min": 0, "max": 50, "step": 1},
-        {"id": "ceiling", "type": "checkbox", "label": "Include the ceiling", "default": true}
+        {
+          "id": "length",
+          "type": "number",
+          "kind": "length",
+          "label": "Room length",
+          "default": 12,
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "id": "width",
+          "type": "number",
+          "kind": "length",
+          "label": "Room width",
+          "default": 12,
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "id": "height",
+          "type": "number",
+          "kind": "length",
+          "label": "Wall height",
+          "default": 8,
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "id": "sheet",
+          "type": "select",
+          "label": "Sheet size",
+          "options": [
+            {
+              "value": "32",
+              "label": "4 × 8 ft (about 1.2 × 2.4 m)"
+            },
+            {
+              "value": "40",
+              "label": "4 × 10 ft (about 1.2 × 3.0 m)"
+            },
+            {
+              "value": "48",
+              "label": "4 × 12 ft (about 1.2 × 3.6 m)"
+            }
+          ],
+          "default": "32"
+        },
+        {
+          "id": "waste",
+          "type": "number",
+          "label": "Extra for waste",
+          "unit": "%",
+          "default": 10,
+          "min": 0,
+          "max": 50,
+          "step": 1
+        },
+        {
+          "id": "ceiling",
+          "type": "checkbox",
+          "label": "Include the ceiling",
+          "default": true
+        },
+        {
+          "id": "price_sheet",
+          "type": "number",
+          "label": "Sheet price",
+          "optional": true,
+          "min": 0,
+          "step": 0.01,
+          "help": "Optional. The price of one sheet in the size you picked.",
+          "unit": "per sheet"
+        }
       ],
       "how": [
         "Area = 2 × (length + width) × height, plus length × width for the ceiling. Sheets = area with extra ÷ sheet area, rounded up.",
-        "Screws: about one per square foot of board, which is about 32 for a 4 × 8 sheet."
+        "Screws: about one per square foot of board, which is about 32 for a 4 × 8 sheet.",
+        "Cost = sheets × the price per sheet you enter. Screws, tape and joint compound are extra."
       ],
       "tips": [
         "Longer sheets mean fewer joints to tape and finish.",
         "Use moisture-resistant board in bathrooms and laundry rooms."
       ],
       "faqs": [
-        {"q": "How many sheets of drywall for a 12 × 12 room?", "a": "With 8 ft walls and the ceiling, 528 ft². With 10% extra that is about 581 ft², or 19 sheets of 4 × 8."},
-        {"q": "Should I subtract doors and windows?", "a": "For small openings, no. The pieces you cut out are usually waste, so counting the full wall keeps you from running short."}
+        {
+          "q": "How many sheets of drywall for a 12 × 12 room?",
+          "a": "With 8 ft walls and the ceiling, 528 ft². With 10% extra that is about 581 ft², or 19 sheets of 4 × 8."
+        },
+        {
+          "q": "Should I subtract doors and windows?",
+          "a": "For small openings, no. The pieces you cut out are usually waste, so counting the full wall keeps you from running short."
+        }
       ],
-      "related": ["paint", "flooring-tile", "roofing"]
+      "related": [
+        "paint",
+        "flooring-tile",
+        "roofing"
+      ]
     },
     {
       "id": "flooring-tile",
       "group": "projects",
       "slug": "flooring-tile",
-      "title": "Flooring and Tile Calculator: Square Feet and Boxes",
+      "title": "Flooring and Tile Calculator: Square Feet, Boxes and Cost",
       "h1": "Flooring and tile calculator",
-      "short": "Square footage plus waste, and how many boxes to buy.",
-      "description": "Work out the floor area of a room, add the right allowance for waste, and see how many boxes of tile, laminate or vinyl plank to buy.",
+      "short": "Square footage plus waste, how many boxes to buy and what they cost.",
+      "description": "Work out a room's floor area, add the right allowance for waste, and see how many boxes of tile, laminate or vinyl plank to buy and what they cost.",
       "intro": "Enter the room's size and the coverage printed on one box. Use 10% extra for a straight layout and 15% for diagonal or herringbone.",
       "units": true,
       "fields": [
-        {"id": "length", "type": "number", "kind": "length", "label": "Room length", "default": 12, "min": 0, "step": 0.1},
-        {"id": "width", "type": "number", "kind": "length", "label": "Room width", "default": 10, "min": 0, "step": 0.1},
-        {"id": "waste", "type": "number", "label": "Extra for cuts", "unit": "%", "default": 10, "min": 0, "max": 50, "step": 1},
-        {"id": "box", "type": "number", "kind": "area", "label": "Coverage per box", "default": 20, "min": 0.1, "step": 0.1, "help": "Printed on the box or product page."}
+        {
+          "id": "length",
+          "type": "number",
+          "kind": "length",
+          "label": "Room length",
+          "default": 12,
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "id": "width",
+          "type": "number",
+          "kind": "length",
+          "label": "Room width",
+          "default": 10,
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "id": "waste",
+          "type": "number",
+          "label": "Extra for cuts",
+          "unit": "%",
+          "default": 10,
+          "min": 0,
+          "max": 50,
+          "step": 1
+        },
+        {
+          "id": "box",
+          "type": "number",
+          "kind": "area",
+          "label": "Coverage per box",
+          "default": 20,
+          "min": 0.1,
+          "step": 0.1,
+          "help": "Printed on the box or product page."
+        },
+        {
+          "id": "price_area",
+          "type": "number",
+          "label": "Flooring price",
+          "optional": true,
+          "min": 0,
+          "step": 0.01,
+          "help": "Optional. The price per square foot (or square meter) on the label.",
+          "kind": "price_area"
+        }
       ],
       "how": [
-        "Floor area = length × width. Material needed = area × (1 + extra %). Boxes = material needed ÷ coverage per box, rounded up."
+        "Floor area = length × width. Material needed = area × (1 + extra %). Boxes = material needed ÷ coverage per box, rounded up.",
+        "Cost = whole boxes × coverage per box × the price you enter, because stores sell full boxes."
       ],
       "tips": [
         "Buy all boxes from the same batch or dye lot so the color matches.",
         "Keep one spare box for future repairs."
       ],
       "faqs": [
-        {"q": "How much extra flooring should I buy?", "a": "About 10% for straight layouts in simple rooms, and 15% or more for diagonal or herringbone patterns and rooms with many corners."},
-        {"q": "How many boxes for a 12 × 10 room?", "a": "120 ft² plus 10% is 132 ft². With 20 ft² boxes, that is 7 boxes."}
+        {
+          "q": "How much extra flooring should I buy?",
+          "a": "About 10% for straight layouts in simple rooms, and 15% or more for diagonal or herringbone patterns and rooms with many corners."
+        },
+        {
+          "q": "How many boxes for a 12 × 10 room?",
+          "a": "120 ft² plus 10% is 132 ft². With 20 ft² boxes, that is 7 boxes."
+        }
       ],
-      "related": ["paint", "drywall", "concrete"]
+      "related": [
+        "paint",
+        "drywall",
+        "concrete"
+      ]
     },
     {
       "id": "roofing",
       "group": "projects",
       "slug": "roofing",
-      "title": "Roofing Calculator: Roof Area, Squares and Shingle Bundles",
+      "title": "Roofing Calculator: Squares, Shingle Bundles and Cost",
       "h1": "Roofing calculator",
-      "short": "Roof area from the footprint and pitch, in squares and shingle bundles.",
-      "description": "Estimate roof area from your house footprint and roof pitch, and see how many squares and bundles of shingles you need.",
+      "short": "Roof area from the footprint and pitch, in squares and bundles, with shingle cost.",
+      "description": "Estimate roof area from your house footprint and roof pitch, see how many squares and bundles of shingles you need, and what they cost at your price.",
       "intro": "Measure the footprint including the overhangs, then enter the pitch as inches of rise per 12 inches of run.",
       "units": true,
       "fields": [
-        {"id": "length", "type": "number", "kind": "length", "label": "Footprint length", "default": 40, "min": 0, "step": 0.1, "help": "Include the eaves overhang."},
-        {"id": "width", "type": "number", "kind": "length", "label": "Footprint width", "default": 30, "min": 0, "step": 0.1},
-        {"id": "pitch", "type": "number", "label": "Pitch (rise per 12 run)", "unit": "/12", "default": 6, "min": 0, "max": 24, "step": 0.5},
-        {"id": "waste", "type": "number", "label": "Extra for waste", "unit": "%", "default": 10, "min": 0, "max": 50, "step": 1}
+        {
+          "id": "length",
+          "type": "number",
+          "kind": "length",
+          "label": "Footprint length",
+          "default": 40,
+          "min": 0,
+          "step": 0.1,
+          "help": "Include the eaves overhang."
+        },
+        {
+          "id": "width",
+          "type": "number",
+          "kind": "length",
+          "label": "Footprint width",
+          "default": 30,
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "id": "pitch",
+          "type": "number",
+          "label": "Pitch (rise per 12 run)",
+          "unit": "/12",
+          "default": 6,
+          "min": 0,
+          "max": 24,
+          "step": 0.5
+        },
+        {
+          "id": "waste",
+          "type": "number",
+          "label": "Extra for waste",
+          "unit": "%",
+          "default": 10,
+          "min": 0,
+          "max": 50,
+          "step": 1
+        },
+        {
+          "id": "price_bundle",
+          "type": "number",
+          "label": "Shingle price",
+          "optional": true,
+          "min": 0,
+          "step": 0.01,
+          "help": "Optional. The price of one bundle at your store.",
+          "unit": "$ per bundle",
+          "only": "us"
+        },
+        {
+          "id": "price_m2",
+          "type": "number",
+          "label": "Roofing price",
+          "optional": true,
+          "min": 0,
+          "step": 0.01,
+          "help": "Optional. The material price per square meter.",
+          "unit": "per m²",
+          "only": "metric"
+        }
       ],
       "how": [
         "Pitch factor = √(1 + (rise ÷ 12)²). Roof area = footprint × pitch factor, plus the extra percentage.",
-        "A roofing square is 100 ft². Most asphalt shingles come in 3 bundles per square; some heavier styles need more, so check the wrapper."
+        "A roofing square is 100 ft². Most asphalt shingles come in 3 bundles per square; some heavier styles need more, so check the wrapper.",
+        "Cost = bundles × the price per bundle you enter (or roof area × the price per m² in metric). Underlayment, flashing, nails and labor are extra."
       ],
       "tips": [
         "Hips, valleys and dormers add cutting waste; use 12 to 15% extra on complex roofs.",
         "Order ridge cap and starter strip separately; they are not included in the bundle count."
       ],
       "faqs": [
-        {"q": "What is a roofing square?", "a": "100 square feet of roof surface."},
-        {"q": "How many bundles for a 40 × 30 roof at 6/12?", "a": "1,200 ft² × 1.118 = 1,342 ft² of roof. With 10% extra that is 14.8 squares, or 45 bundles at 3 per square."}
+        {
+          "q": "What is a roofing square?",
+          "a": "100 square feet of roof surface."
+        },
+        {
+          "q": "How many bundles for a 40 × 30 roof at 6/12?",
+          "a": "1,200 ft² × 1.118 = 1,342 ft² of roof. With 10% extra that is 14.8 squares, or 45 bundles at 3 per square."
+        }
       ],
-      "related": ["concrete", "drywall", "paint"]
+      "related": [
+        "concrete",
+        "drywall",
+        "paint"
+      ]
     }
   ]
 }

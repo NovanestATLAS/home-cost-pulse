@@ -21,7 +21,7 @@ from pathlib import Path
 sys.path.insert(0, os.path.dirname(__file__))
 import share_images  # noqa: E402
 import summaries  # noqa: E402
-from common import (ASSETS_DIR, CONTENT_DIR, DIST_DIR, EIA_FILE, ROOT, SEED_FILE, SOLAR_FILE, add_months,  # noqa: E402
+from common import (ASSETS_DIR, CONTENT_DIR, DATA_DIR, DIST_DIR, EIA_FILE, ROOT, SEED_FILE, SOLAR_FILE, add_months,  # noqa: E402
                     esc, fmt_cents, fmt_int, fmt_money, load_config, load_json, load_states_meta, log,
                     month_name, month_short, ordinal, today)
 
@@ -140,6 +140,10 @@ class Site:
         self.examples: dict = {}
         self.v = {}
         self.build_date = today().isoformat()
+        # Date of the last hand-made change to texts and calculators. Used as <lastmod> for pages that do not
+        # depend on EIA data, so the sitemap does not claim that every page changes every week.
+        self.content_date = str(cfg.get("content_updated") or self.build_date)
+        self.choice = (load_json(DATA_DIR / "electric_choice.json", {}) or {}).get("states", {})
 
     # urls
     def url(self, path: str) -> str:
@@ -178,6 +182,47 @@ class Site:
         code = (self.cfg.get("ads", {}).get("slots", {}) or {}).get(slot, "")
         return f'<div class="ad-slot">{code}</div>' if code.strip() else ""
 
+    def partner(self, key: str, state=None) -> str:
+        """A labeled partner (affiliate) button. Hidden until its url is filled in site.config.json."""
+        P = self.cfg.get("partners", {}) or {}
+        item = P.get(key) or {}
+        url = ""
+        if state:
+            url = ((item.get("state_urls") or {}).get(state["code"]) or "").strip()
+        url = url or (item.get("url") or "").strip()
+        if not url.startswith("https://"):
+            return ""
+        label = (item.get("label") or "See offers").replace("{state}", state["name"] if state else "your state")
+        note = P.get("disclosure") or "Partner link: we may earn a commission if you use it. It never changes the numbers on this page."
+        return (f'<aside class="partner"><a class="btn" href="{esc(url)}" target="_blank" rel="sponsored nofollow noopener">{esc(label)}</a>'
+                f'<p class="partner-note">{esc(note)}</p></aside>')
+
+    def has_partners(self) -> bool:
+        P = self.cfg.get("partners", {}) or {}
+        for item in P.values():
+            if isinstance(item, dict) and ((item.get("url") or "").startswith("https://")
+                                           or any((u or "").startswith("https://") for u in (item.get("state_urls") or {}).values())):
+                return True
+        return False
+
+    def choice_block(self, s) -> str:
+        """States where homes can pick their electricity supplier: what that means and the regulator's own site."""
+        c = self.choice.get(s["code"])
+        if not c:
+            return ""
+        name, price = esc(s["name"]), fmt_cents(s["price"])
+        link = f'<a href="{esc(c["url"])}" rel="noopener">{esc(c["site"])}</a>'
+        if c["kind"] == "required":
+            first = (f"In most of {name}, you have to. Homes in the areas open to competition must pick a retail electricity provider. "
+                     "Areas served by city-owned utilities or electric cooperatives, such as Austin and San Antonio, have a single provider.")
+        else:
+            first = (f"Yes. {name} lets most homes buy the supply part of their electricity from a competing supplier "
+                     "instead of the utility's default rate. Your local utility still delivers the power and sends the bill.")
+        return (f'<h2>Can you choose your electricity supplier in {name}?</h2><p>{first}</p>'
+                f'<p>Only the supply charge changes when you switch. The {price} average on this page covers supply and delivery together, for all homes. '
+                f'Compare current offers on {link}, run by the {esc(c["by"])}. Before you sign, check the contract length, any monthly or '
+                f'cancellation fee, and the rate after a fixed term ends.</p>{self.partner("electricity_plans", s)}')
+
     def crumbs(self, items) -> str:
         out = []
         for label, path in items:
@@ -211,7 +256,7 @@ class Site:
             '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;600;700&display=swap">',
             f'<link rel="stylesheet" href="{self.asset("style.css")}">',
         ]
-        og = self.og.get(og_key) if og_key else None
+        og = (self.og.get(og_key) if og_key else None) or self.og.get("default")
         if og:
             head += [f'<meta property="og:image" content="{esc(self.abs(og))}">',
                      '<meta property="og:image:width" content="1200">', '<meta property="og:image:height" content="630">',
@@ -295,7 +340,7 @@ class Site:
             elif f.get("bind") == "kwh":
                 v = round(us["avg_kwh"])
             if f["type"] == "number":
-                v = float(v)
+                v = float(v) if v is not None else None   # optional fields (prices) start empty
             vals[f["id"]] = v
         return vals
 
@@ -317,8 +362,11 @@ class Site:
             checked = " checked" if f.get("default") else ""
             return f'<div class="field"><label class="check" for="{dom}"><input id="{dom}" type="checkbox" name="{fid}"{checked}> {esc(f["label"])}</label></div>'
         kind = f.get("kind")
-        unit = esc(f.get("unit", "")) if not kind else esc({"length": "ft", "small": "in", "area": "ft²", "coverage": "ft²/gal", "density": "tons/yd³"}[kind])
-        attrs = [f'id="{dom}"', f'name="{fid}"', 'type="number"', 'inputmode="decimal"', f'value="{values[fid]:g}"']
+        unit = esc(f.get("unit", "")) if not kind else esc({
+            "length": "ft", "small": "in", "area": "ft²", "coverage": "ft²/gal", "density": "tons/yd³",
+            "price_volume": "$ per yd³", "price_area": "$ per ft²", "price_liquid": "$ per gal"}[kind])
+        attrs = [f'id="{dom}"', f'name="{fid}"', 'type="number"', 'inputmode="decimal"',
+                 f'value="{values[fid]:g}"' if values.get(fid) is not None else 'placeholder="optional"']
         for a in ("min", "max", "step"):
             if a in f:
                 attrs.append(f'{a}="{f[a]}"')
@@ -328,7 +376,8 @@ class Site:
             attrs.append(f'data-bind="{f["bind"]}" data-default="{f["default"]}"')
         kind_attr = f' data-kind="{kind}"' if kind else ""
         unit_html = f'<span class="unit"{kind_attr}>{unit}</span>' if unit else ""
-        return (f'<div class="field"><label for="{dom}">{esc(f["label"])}</label>'
+        only = f' data-only="{esc(f["only"])}"' if f.get("only") else ""   # shown in one unit system only
+        return (f'<div class="field"{only}><label for="{dom}">{esc(f["label"])}</label>'
                 f'<div class="input-unit"><input {" ".join(attrs)}{described}>{unit_html}</div>{help_html}</div>')
 
     def calc_page(self, calc):
@@ -359,12 +408,16 @@ class Site:
         if calc["group"] == "energy":
             states_block = ('<h2>Prices by state</h2><p>Pick a state in the form above, or open its page for the full picture: '
                             'price history, average bill and what everyday appliances cost there.</p>' + self.states_grid())
+        contractor_for = (self.cfg.get("partners", {}).get("contractor_quotes", {}) or {}).get("calculators") or \
+            ["roofing", "flooring-tile", "drywall", "concrete", "paint"]
+        partner = self.partner("solar_quotes") if calc["id"] == "solar-payback" else (
+            self.partner("contractor_quotes") if calc["id"] in contractor_for else "")
         body = (f'<h1>{esc(calc["h1"])}</h1><p class="lede">{esc(calc["intro"])}</p>'
                 f'<div class="calc-layout"><form class="calc" data-calc="{calc["id"]}" novalidate>{units}{fields}'
                 '<noscript><p class="note">This calculator needs JavaScript. The result on the right is a worked example with the starting values.</p></noscript></form>'
                 f'<div class="receipt"><div class="receipt-head"><strong>Your estimate</strong><span>{esc(basis)}</span></div>'
                 f'<div data-receipt-for="{calc["id"]}" aria-live="polite">{example_html}</div></div></div>'
-                f'{self.ad("in_content")}<h2>How it is calculated</h2>{how}{example_text}<h2>Tips</h2>{tips}'
+                f'{partner}{self.ad("in_content")}<h2>How it is calculated</h2>{how}{example_text}<h2>Tips</h2>{tips}'
                 f'<h2>Questions</h2>{faqs}{states_block}<h2>Related calculators</h2>{related}{self.ad("bottom")}')
         ld = [{"@context": "https://schema.org", "@type": "WebApplication", "name": calc["h1"],
                "url": self.abs(path), "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any",
@@ -373,7 +426,8 @@ class Site:
                            crumbs=[("Home", "/"), ("Calculators", "/calculators/"), (calc["h1"], None)],
                            ld=ld, og_key=f"calc:{calc['id']}", scripts=("calc-core.js", "site.js"),
                            data_json=self.calc_data() if calc["group"] == "energy" else None, nav="/calculators/")
-        self.write(path, html, 0.8)
+        # Energy calculators load the newest rates, so they change when the data does.
+        self.write(path, html, 0.8, lastmod=max(self.content_date, self.data_lastmod()) if calc["group"] == "energy" else self.content_date)
 
     def states_grid(self):
         return '<ul class="states-grid">' + "".join(
@@ -386,12 +440,12 @@ class Site:
                 f'<li><a href="{self.url("/calculators/" + c["slug"] + "/")}">{esc(c["h1"])}</a><span>{esc(c["short"])}</span></li>'
                 for c in self.calcs if c["group"] == g) + "</ul>"
         body = ('<h1>Home cost calculators</h1><p class="lede">Free calculators for running a home and planning projects. '
-                'The energy tools load each state\'s latest official electricity price; the project tools work in feet or meters.</p>'
+                'The energy tools load each state\'s latest official electricity price; the project tools work in feet or meters and turn quantities into a cost at your local price.</p>'
                 f'<h2>Energy and bills</h2>{group("energy")}<h2>Home projects</h2>{group("projects")}')
-        html = self.layout(path="/calculators/", title="Home Cost Calculators: Energy Bills and Project Materials | Home Cost Pulse",
-                           description="Free calculators for electric bills, appliance running costs, EV charging, solar payback, concrete, gravel, paint, drywall, flooring and roofing.",
+        html = self.layout(path="/calculators/", title="Home Cost Calculators: Energy Bills and Project Materials",
+                           description="Free calculators for electric bills, appliance running costs, EV charging, solar payback, and the quantity and cost of concrete, gravel, paint, drywall, flooring and roofing.",
                            body=body, crumbs=[("Home", "/"), ("Calculators", None)], nav="/calculators/")
-        self.write("/calculators/", html, 0.8)
+        self.write("/calculators/", html, 0.8, lastmod=self.content_date)
 
     # ------------------------------------------------------------ states
     def state_page(self, s):
@@ -447,7 +501,8 @@ class Site:
                      f'<strong>{fmt_int(pk)} kWh a year</strong>, according to the NLR PVWatts model. At {esc(s["name"])}\'s average price that output is worth about '
                      f'{fmt_money(pk * p, 0)} a year per kW. A typical 7 kW system would make about {fmt_int(pk * 7)} kWh, worth about {fmt_money(pk * 7 * p, 0)} a year.</p>'
                      f'<p class="callout">The 30% federal tax credit for solar you buy (Section 25D) ended on December 31, 2025. '
-                     f'<a href="{self.url("/calculators/solar-payback/")}?state={s["code"]}">Work out payback with your own quote</a>.</p>')
+                     f'<a href="{self.url("/calculators/solar-payback/")}?state={s["code"]}">Work out payback with your own quote</a>.</p>'
+                     + self.partner("solar_quotes", s))
 
         peers = sorted([x for x in S["states"] if x["region"] == s["region"] and x["price"]], key=lambda x: x["price"])
         current_row = ' class="is-current"'
@@ -477,9 +532,11 @@ class Site:
                    + (f'<p>Solar: PVWatts v8 by the National Laboratory of the Rockies, 1 kW fixed roof system, 20° tilt, facing south, 14% losses.</p>' if s["solar"] else "")
                    + f'<p><a href="{self.url("/methodology/")}">How we calculate</a>. Page updated {esc(self.build_date)}.</p></div>')
 
-        body = top + self.ad("top") + chart + everyday + self.ad("in_content") + solar + mini_calc + tools + region + self.ad("bottom") + sources
+        choice = self.choice_block(s)
+        body = top + self.ad("top") + chart + choice + everyday + self.ad("in_content") + solar + mini_calc + tools + region + self.ad("bottom") + sources
         desc = (f"{s['name']} homes paid {fmt_cents(s['price'])} per kWh in {mname}, {vs} the U.S. average. "
-                f"Average bill {fmt_money(s['avg_bill'], 0) if s['avg_bill'] else 'n/a'} a month. Trend, appliance costs and solar output.")
+                f"Average bill {fmt_money(s['avg_bill'], 0) if s['avg_bill'] else 'n/a'} a month. "
+                + ("Trend, appliance costs and how to choose a supplier." if choice else "Trend, appliance costs and solar output."))
         trend_cov = f"{s['trend'][0][0]}/{s['trend'][-1][0]}" if s["trend"] else s["period"]
         ld = [{"@context": "https://schema.org", "@type": "Dataset",
                "name": f"{s['name']} residential electricity price and average bill",
@@ -496,6 +553,14 @@ class Site:
                            ld=ld, og_key=f"state:{s['code']}", scripts=("calc-core.js", "site.js"), nav="/electricity-rates/",
                            og_type="article")
         self.write(path, html, 0.9, lastmod=self.data_lastmod())
+
+    def dataset_ld(self, path, name, description, coverage):
+        return {"@context": "https://schema.org", "@type": "Dataset", "name": name, "description": description,
+                "url": self.abs(path), "isAccessibleForFree": True,
+                "creator": {"@type": "Organization", "name": "U.S. Energy Information Administration", "url": "https://www.eia.gov"},
+                "license": "https://www.eia.gov/about/copyrights_reuse.php",
+                "spatialCoverage": {"@type": "Place", "name": "United States"}, "temporalCoverage": coverage,
+                "variableMeasured": ["Average residential electricity price (cents per kWh)"]}
 
     def data_lastmod(self):
         fa = self.S.get("fetched_at")
@@ -533,6 +598,13 @@ class Site:
         if len(us["trend"]) >= 6:
             chart = (f'<h2>U.S. average price</h2><figure class="chart">{trend_svg(us["trend"], None, "Line chart of the U.S. average residential electricity price by month")}'
                      '</figure>')
+        choice_states = [s for s in sorted(S["states"], key=lambda x: x["name"]) if s["code"] in self.choice and s["price"]]
+        choice_html = ""
+        if choice_states:
+            links = ", ".join(f'<a href="{self.state_url(s)}">{esc(s["name"])}</a>' for s in choice_states)
+            choice_html = ('<h2>States where you can choose your supplier</h2><p>In these places most homes can buy the supply part of their '
+                           f'electricity from a competing supplier, and in most of Texas they must: {links}. Each page links to the state '
+                           'regulator\'s own comparison site. Everywhere else, your local utility is the only seller.</p>')
         body = (f'<h1>Electricity rates by state</h1><p class="lede">Average residential price per kWh in {esc(m)} for all 50 states and D.C., '
                 f'with usage and bills. Data from the U.S. Energy Information Administration, refreshed when EIA publishes a new month.</p>'
                 f'{facts}{self.ad("top")}<h2>All states, ranked</h2><p class="small muted">Select a column heading to sort. Change is {esc(change_label)}.</p>'
@@ -540,10 +612,13 @@ class Site:
                 '<h2>Why prices differ so much</h2><p>The price per kWh mostly reflects how a state\'s power is generated and delivered: fuel costs, '
                 'grid and storm-hardening investment, and state policy. Bills also depend on how much electricity homes use, which climate and '
                 'the share of homes heating with electricity drive. That is why some lower-price Southern states still have higher average bills.</p>'
-                f'<div class="sources"><p>Source: {esc(S["source_note"])}. Public domain.</p><p><a href="{self.url("/methodology/")}">How we calculate</a>.</p></div>')
+                f'{choice_html}<div class="sources"><p>Source: {esc(S["source_note"])}. Public domain.</p><p><a href="{self.url("/methodology/")}">How we calculate</a>.</p></div>')
         html = self.layout(path="/electricity-rates/", title=f"Electricity Rates by State ({month_short(S['latest_period'])}): All 50 States Ranked",
                            description=f"Average residential electricity price per kWh for every state in {m}, with average usage and monthly bills. U.S. average: {fmt_cents(us['price'])}.",
                            body=body, crumbs=[("Home", "/"), ("Electricity rates", None)], og_key="rates",
+                           ld=[self.dataset_ld("/electricity-rates/", f"Residential electricity prices by U.S. state, {m}",
+                                               f"Average residential electricity price, usage and monthly bill for all 50 states and D.C. in {m}.",
+                                               S["latest_period"])],
                            scripts=("site.js",), nav="/electricity-rates/")
         self.write("/electricity-rates/", html, 1.0, lastmod=self.data_lastmod())
 
@@ -622,6 +697,8 @@ class Site:
         html = self.layout(path=path, title=f"Electricity Prices by State, {m}: Every State Ranked",
                            description=f"Residential electricity prices in all 50 states and D.C. for {m}: cheapest, most expensive and the biggest changes since {ya}.",
                            body=body, crumbs=[("Home", "/"), ("Monthly reports", "/reports/"), (m, None)], scripts=("site.js",),
+                           ld=[self.dataset_ld(path, f"Residential electricity prices by U.S. state, {m}",
+                                               f"Residential electricity price in every U.S. state for {m}, with the change since {ya}.", mth)],
                            og_key="rates", nav="/reports/", og_type="article")
         self.write(path, html, 0.7, lastmod=self.data_lastmod())
 
@@ -665,7 +742,7 @@ class Site:
         ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": self.cfg["site_name"], "url": self.abs("/")},
               {"@context": "https://schema.org", "@type": "Organization", "name": self.cfg.get("publisher_name", self.cfg["site_name"]),
                "url": self.abs("/"), "logo": self.abs("/favicon.svg")}]
-        html = self.layout(path="/", title=f"Electricity Rates by State and Home Cost Calculators | {self.cfg['site_name']}",
+        html = self.layout(path="/", title=f"Electricity Rates by State and Cost Calculators | {self.cfg['site_name']}",
                            description=f"Official electricity prices for every U.S. state ({m}), average bills, and free calculators for appliances, EV charging, solar payback and home projects.",
                            body=body, ld=ld, og_key="home", scripts=("site.js",))
         self.write("/", html, 1.0, lastmod=self.data_lastmod())
@@ -698,13 +775,17 @@ class Site:
             reach = f'<a href="mailto:{esc(mail)}">{esc(mail)}</a>'
             contact_block = f'<p>Email: {reach}</p>'
         sol = S.get("solar_meta", {}).get("system", {})
+        funding = "The site is free to use and may show advertising. Ads never change the numbers. "
+        funding += ("Some buttons are partner links: if you use one, we may earn a commission at no cost to you. Each one is labeled where it appears, "
+                    "and partners have no say over the data or the calculations." if self.has_partners()
+                    else "If we ever add affiliate links, they will be labeled where they appear.")
         pages = {
             "/about/": ("About Home Cost Pulse", f"Who publishes {site}, where the data comes from and how the site is funded.", f"""
 <h1>About {esc(site)}</h1>
 <p class="lede">{esc(site)} answers one question for U.S. households: what will this cost me? It turns official public data into plain numbers and free calculators.</p>
 <h2>Who we are</h2><p>{esc(site)} is published by {esc(pub)}, an independent developer studio that builds calculators and study tools. We are not a utility, an energy retailer or a government agency, and we are not paid by any of them.</p>
 <h2>Where the numbers come from</h2><p>Electricity prices, usage and bills come from the U.S. Energy Information Administration (EIA). Solar output estimates come from PVWatts, run by the National Laboratory of the Rockies (formerly NREL). Project calculators use standard building rules of thumb, explained on each page.</p>
-<h2>How the site is funded</h2><p>The site is free to use and may show advertising. Ads never change the numbers. If we ever add affiliate links, they will be labeled where they appear.</p>
+<h2>How the site is funded</h2><p>{funding}</p>
 <h2>Corrections</h2><p>Found a mistake? Tell us through the {reach} and we will fix it.</p>"""),
             "/methodology/": ("How We Calculate", "Data sources, formulas and update schedule behind every number on the site.", f"""
 <h1>How we calculate</h1>
@@ -717,10 +798,11 @@ class Site:
 <li>Change is the price compared with the same month a year earlier.</li></ul>
 <p>Monthly figures are preliminary and EIA revises them; when it does, the site picks up the revision on the next weekly check.</p>
 <h2>Solar output</h2><p>Source: PVWatts v8 by the National Laboratory of the Rockies (formerly NREL), for one large city per state, using a fixed roof-mounted system facing south ({esc(sol.get("azimuth", 180))}° azimuth) at a {esc(sol.get("tilt", 20))}° tilt with {esc(sol.get("losses", 14))}% system losses and standard modules. Your roof's direction, shading and tilt change the result.</p>
-<h2>Calculators</h2><p>Each calculator page explains its own formula. The math runs in your browser; nothing you type is sent anywhere.</p>
+<h2>Calculators</h2><p>Each calculator page explains its own formula. The math runs in your browser; nothing you type is sent anywhere. Project calculators only show a cost when you type a price yourself: the site does not guess material prices.</p>
+<h2>Choosing a supplier</h2><p>Some state pages explain that homes there can choose their electricity supplier. That list follows the U.S. Energy Information Administration's description of retail choice and is reviewed by hand, and each page links to the state regulator's own site. Rules differ by utility, so confirm with yours.</p>
 <h2>What these numbers are not</h2><p>They are averages and estimates for planning. They are not a quote, a bill, or financial, tax or legal advice. Your utility's tariff and your installer's or contractor's quote are the final word.</p>"""),
-            "/privacy/": ("Privacy Policy", f"How {site} handles data, cookies and advertising.", f"""
-<h1>Privacy policy</h1><p class="lede">Last updated {esc(self.build_date)}.</p>
+            "/privacy/": ("Privacy Policy", f"How {site} handles calculator inputs, analytics, cookies, advertising and the contact form, and how to make a privacy request.", f"""
+<h1>Privacy policy</h1><p class="lede">Last updated {esc(self.content_date)}.</p>
 <h2>What you type into calculators</h2><p>Calculator inputs are processed in your browser. We do not receive or store them.</p>
 <h2>Analytics</h2><p>We may use privacy-friendly analytics (such as Cloudflare Web Analytics) or Google Analytics to count visits and see which pages are useful. These tools collect technical data such as pages viewed, approximate location from your IP address, device and browser type.</p>
 <h2>Advertising</h2><p>We may show ads from third-party networks. These partners may use cookies or similar technologies to show ads and measure them, including ads based on your interests. You can control interest-based ads through your browser settings and, where available, the consent message shown on this site. Google's use of advertising cookies is explained at <a href="https://policies.google.com/technologies/ads">policies.google.com/technologies/ads</a>.</p>
@@ -729,13 +811,13 @@ class Site:
 <h2>Your choices and rights</h2><p>Depending on where you live (for example California, the EU or the UK), you may have rights to access, delete or opt out of the sale or sharing of personal data. Use the {reach} to make a request.</p>
 <h2>Contact form</h2><p>Messages sent through the contact form are delivered to us by Web3Forms, a form service. We use what you write, and your email address if you give one, only to answer you.</p>
 <h2>Contact</h2><p>{esc(pub)}, through the {reach}.</p>"""),
-            "/terms/": ("Terms of Use", f"Terms for using {site}.", f"""
-<h1>Terms of use</h1><p class="lede">Last updated {esc(self.build_date)}.</p>
+            "/terms/": ("Terms of Use", f"Terms for using {site}: estimates and public statistics for general information, not quotes, bills or professional advice.", f"""
+<h1>Terms of use</h1><p class="lede">Last updated {esc(self.content_date)}.</p>
 <p>{esc(site)} provides estimates and public statistics for general information. They are not quotes, bills, or financial, tax, legal or engineering advice. Always confirm prices with your utility and get professional quotes before you buy or build.</p>
 <p>We work to keep the data accurate and current but provide the site "as is", without warranties of any kind. We are not liable for decisions made using it.</p>
 <p>Government data on this site (EIA and NLR) is public domain and credited to its source. The site's design, text and code belong to {esc(pub)}.</p>
 <p>We may change these terms; the date above shows the latest version.</p>"""),
-            "/contact/": ("Contact", f"How to reach the {site} team.", f"""
+            "/contact/": ("Contact", f"Contact {site} with a question, a correction or an idea for a new calculator. Use the form; no account is needed.", f"""
 <h1>Contact</h1><p class="lede">Questions, corrections or ideas for a new calculator are welcome.</p>
 {contact_block}
 <p>We cannot help with your utility account or bill disputes; please contact your utility for those.</p>"""),
@@ -745,7 +827,7 @@ class Site:
             html = self.layout(path=path, title=f"{title} | {site}", description=desc, body=body,
                                crumbs=[("Home", "/"), (name, None)], nav=path if path == "/methodology/" else None,
                                scripts=("site.js",) if path == "/contact/" else ())
-            self.write(path, html, 0.3)
+            self.write(path, html, 0.3, lastmod=self.content_date)
         html = self.layout(path="/404.html", title=f"Page not found | {site}", description="This page does not exist.",
                            body=f'<h1>Page not found</h1><p class="lede">The address may be mistyped, or the page has moved.</p>'
                                 f'<p><a href="{self.url("/electricity-rates/")}">See electricity rates by state</a> or '

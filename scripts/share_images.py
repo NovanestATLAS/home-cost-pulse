@@ -148,6 +148,8 @@ def generate(dist: Path, S: dict, calcs: list[dict], cfg: dict) -> dict[str, str
     simple_og(dist / "og" / "rates.png", "Electricity rates by state",
               f"Average residential price, {month_name(S['latest_period'])}", site, domain, us["price"])
     out["rates"] = "/og/rates.png"
+    simple_og(dist / "og" / "default.png", site, "Electricity rates by state and home cost calculators", site, domain)
+    out["default"] = "/og/default.png"
     for s in S["states"]:
         if not s.get("price"):
             continue

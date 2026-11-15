@@ -7,7 +7,10 @@ server, no database, free hosting. Python and Node.js standard libraries only (m
 * 51 state pages (50 states + D.C.) with price, 36-month trend, average usage and bill, everyday costs, solar output
 * A sortable all-states table and a monthly report for each new EIA month
 * 10 calculators: electric bill, appliance cost, EV charging, solar payback, concrete, gravel/mulch,
-  paint, drywall, flooring/tile, roofing (feet or meters)
+  paint, drywall, flooring/tile, roofing (feet or meters). The project tools turn quantities into a material
+  cost when the visitor types a local price; the site never guesses prices.
+* A "Can you choose your supplier?" section on the 14 state pages where homes can, linking to the state
+  regulator's own comparison site (`data/electric_choice.json`)
 * About, methodology, privacy, terms and contact pages (needed for ad network approval)
 * sitemap.xml, robots.txt, ads.txt, IndexNow key, Open Graph images and Pinterest pins
 
@@ -30,6 +33,7 @@ EIA publishes a new month roughly 8 weeks after it ends (for example, August 202
 |---|---|
 | `site.config.json` | Site name, address, contact form key, ad code, analytics, verification codes |
 | `data/states_meta.json` | 51 jurisdictions with slug, region and the city used for solar |
+| `data/electric_choice.json` | States with supplier choice and each regulator's official site (review once a year) |
 | `data/seed/eia_seed_2026-07.json` | Real EIA numbers used until your EIA key is added |
 | `data/eia_residential_monthly.json` | Written by `fetch_eia.py` (committed by the workflow) |
 | `data/solar_pvwatts.json` | Written by `fetch_pvwatts.py` |
@@ -99,9 +103,29 @@ https://web3forms.com if you want this site's messages kept apart from your othe
 * Bing Webmaster Tools: import from Search Console, or paste its code into `bing_site_verification`.
 * IndexNow pings run automatically after each data update (key already in `site.config.json`).
 
+## Partner (affiliate) links
+
+Lead-generation links usually pay more per visitor than display ads, and they do not need a traffic minimum.
+The buttons are built in and stay hidden until you paste a link into `partners` in `site.config.json`:
+
+* `solar_quotes`: under the solar payback result and in each state's solar section.
+* `electricity_plans`: in the supplier-choice section of the 14 state pages. `state_urls` sets a different link
+  for one state, for example `{"TX": "https://..."}`.
+* `contractor_quotes`: under the result of the roofing, flooring, drywall, concrete and paint calculators.
+
+Every button is marked `rel="sponsored nofollow"` and shows the disclosure line, and the About page then says the
+site uses partner links. Apply to a program first (most want a live site with real content, which you now have),
+then paste the tracking link they give you. Checked on November 15, 2026: EnergySage pays $9.60 per approved solar
+lead through FlexOffers; Angi pays 10% of completed service through Impact; ComparePower (Texas) and
+ElectricityRates.com run affiliate programs with rates shown after approval; Choose Energy / SaveOnEnergy take
+partners by email and ask for your traffic volume.
+
 ## Ads
 
 Paste the code your network gives you into `site.config.json`:
+
+After editing texts or calculators, set `content_updated` in `site.config.json` to that day's date: it is the
+sitemap date for pages that do not depend on EIA data.
 
 * `ads.head_html`: the script tag that goes in `<head>` (Monetag, AdSense, or Journey/Grow).
 * `ads.slots.top / in_content / bottom`: optional manual placements.

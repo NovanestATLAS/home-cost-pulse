@@ -1,0 +1,24 @@
+{
+  "_about": "States where homes can choose their electricity supplier, and the official comparison or information site of each state's regulator. Checked by hand; review once a year. EIA counts 13 states plus D.C. with residential retail choice, with Texas counted separately because choice there is mandatory in competitive areas. California's capped program is left out because new homes cannot join it.",
+  "checked": "2026-11-15",
+  "sources": [
+    "https://www.eia.gov/todayinenergy/detail.php?id=55820",
+    "https://www.eia.gov/tools/faqs/faq.php?id=627&t=2"
+  ],
+  "states": {
+    "CT": {"kind": "optional", "site": "Choose a Supplier", "by": "Connecticut Public Utilities Regulatory Authority", "url": "https://portal.ct.gov/pura/electric/choose-a--supplier---information-for-customers"},
+    "DE": {"kind": "optional", "site": "the commission's website", "by": "Delaware Public Service Commission", "url": "https://depsc.delaware.gov/"},
+    "DC": {"kind": "optional", "site": "Retail Choice in the District of Columbia", "by": "D.C. Public Service Commission", "url": "https://dcpsc.org/Consumers-Corner/Service-Providers/Retail-Choice.aspx"},
+    "IL": {"kind": "optional", "site": "Plug In Illinois", "by": "Illinois Commerce Commission", "url": "https://plugin.illinois.gov/"},
+    "ME": {"kind": "optional", "site": "Choosing a Supplier", "by": "Maine Public Utilities Commission", "url": "https://www.maine.gov/mpuc/regulated-utilities/electricity/choosing-supplier"},
+    "MD": {"kind": "optional", "site": "MD Electric Choice", "by": "Maryland Public Service Commission", "url": "https://www.psc.state.md.us/electricchoice/"},
+    "MA": {"kind": "optional", "site": "Energy Switch Massachusetts", "by": "Massachusetts Department of Public Utilities", "url": "https://energyswitchma.gov/"},
+    "NH": {"kind": "optional", "site": "Choosing an Energy Supplier", "by": "New Hampshire Department of Energy", "url": "https://energy.nh.gov/consumers/choosing-energy-supplier"},
+    "NJ": {"kind": "optional", "site": "NJ Power Switch", "by": "New Jersey Board of Public Utilities", "url": "https://www.nj.gov/njpowerswitch/shop"},
+    "NY": {"kind": "optional", "site": "How to Shop for Utility Services", "by": "New York Department of Public Service", "url": "https://dps.ny.gov/how-shop-utility-services"},
+    "OH": {"kind": "optional", "site": "Energy Choice Ohio", "by": "Public Utilities Commission of Ohio", "url": "https://energychoice.ohio.gov/"},
+    "PA": {"kind": "optional", "site": "PA Power Switch", "by": "Pennsylvania Public Utility Commission", "url": "https://www.papowerswitch.com/"},
+    "RI": {"kind": "optional", "site": "Empower RI", "by": "Rhode Island Division of Public Utilities and Carriers", "url": "https://www.ri.gov/empowerri"},
+    "TX": {"kind": "required", "site": "Power to Choose", "by": "Public Utility Commission of Texas", "url": "https://www.powertochoose.org/"}
+  }
+}

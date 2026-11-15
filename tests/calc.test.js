@@ -99,3 +99,63 @@ test('metric concrete matches U.S. volume', () => {
   const m = C.compute('concrete', { length: 10, width: 10, thickness: 4, waste: 0 }, 'metric').raw;
   close(m.m3, us.ft3 * 0.0283168, 1e-6);
 });
+
+// ---- optional prices: the visitor types a price and gets a material cost ----
+
+test('no price typed means no cost line', () => {
+  for (const id of ['concrete', 'gravel-mulch', 'drywall', 'flooring-tile', 'roofing']) {
+    const r = C.compute(id, { length: 10, width: 10, thickness: 4, depth: 3, height: 8, pitch: 6, waste: 10, box: 20, density: 1.4, sheet: '32' });
+    assert.deepEqual(r.extra || [], [], id);
+  }
+});
+
+test('concrete cost: 1.358 yd³ at $170 = $230.86; 62 bags at $6.50 = $403', () => {
+  const r = C.compute('concrete', { length: 10, width: 10, thickness: 4, waste: 10, price_yard: 170, price_bag: 6.5 }).raw;
+  close(r.readyMix, 230.86, 0.01);
+  assert.equal(r.bagCost, 403);
+});
+
+test('gravel cost: 20 × 10 × 3 in with 5% extra = 1.944 yd³, at $45 = $87.50', () => {
+  const r = C.compute('gravel-mulch', { length: 20, width: 10, depth: 3, waste: 5, density: 1.4, price_yard: 45 }).raw;
+  close(r.yd3, 1.9444, 0.001);
+  close(r.cost, 87.5, 0.01);
+});
+
+test('paint cost: 1.91 gal means buying 2 gallons, at $40 = $80', () => {
+  const r = C.compute('paint', { length: 12, width: 12, height: 8, doors: 1, windows: 2, coats: 2, coverage: 350, price_gal: 40 }).raw;
+  assert.equal(r.cost, 80);
+});
+
+test('drywall cost: sheets × price per sheet', () => {
+  const r = C.compute('drywall', { length: 12, width: 12, height: 8, sheet: '32', waste: 10, ceiling: true, price_sheet: 15 }).raw;
+  assert.equal(r.cost, r.sheets * 15);
+});
+
+test('flooring cost uses whole boxes: 7 boxes × 20 ft² × $3 = $420', () => {
+  const r = C.compute('flooring-tile', { length: 12, width: 10, waste: 10, box: 20, price_area: 3 }).raw;
+  assert.equal(r.bought, 140);
+  assert.equal(r.cost, 420);
+});
+
+test('roofing cost: 45 bundles at $38 = $1,710', () => {
+  const r = C.compute('roofing', { length: 40, width: 30, pitch: 6, waste: 10, price_bundle: 38 }).raw;
+  assert.equal(r.cost, 1710);
+});
+
+test('metric prices convert: 10 per litre is 37.85 per gallon; 222.35 per m³ is 170 per yd³', () => {
+  close(C.toUS('price_liquid', 10, 'metric'), 37.8541, 1e-4);
+  close(C.toUS('price_volume', 222.35, 'metric'), 170, 0.01);
+  close(C.toUS('price_area', 32.29, 'metric'), 3, 0.001);
+});
+
+test('metric paint cost: 8 L at 10 per litre = 80, shown without a currency sign', () => {
+  const r = C.compute('paint', { length: 12, width: 12, height: 8, doors: 1, windows: 2, coats: 2, coverage: 350,
+                                 price_gal: C.toUS('price_liquid', 10, 'metric') }, 'metric');
+  close(r.raw.cost, 80, 1e-6);
+  assert.deepEqual(r.extra[1], ['Paint cost (8 L)', '80.00']);
+});
+
+test('metric roofing cost: area in m² × price per m²', () => {
+  const r = C.compute('roofing', { length: 40, width: 30, pitch: 6, waste: 10, price_m2: 12 }, 'metric').raw;
+  close(r.cost, r.withExtra * 0.092903 * 12, 1e-6);
+});

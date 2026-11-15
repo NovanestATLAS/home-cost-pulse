@@ -132,10 +132,14 @@ class Validation(unittest.TestCase):
 class FullBuild(unittest.TestCase):
     """Builds the site in a temporary copy of the project and checks the output."""
 
-    def build(self, live: bool) -> Path:
+    def build(self, live: bool, partners: dict | None = None) -> Path:
         tmp = Path(tempfile.mkdtemp(prefix="hcp-"))
         dst = tmp / "site"
         shutil.copytree(ROOT, dst, ignore=shutil.ignore_patterns("dist", ".git", "__pycache__", "*.zip"))
+        if partners is not None:
+            cfg = json.loads((dst / "site.config.json").read_text())
+            cfg["partners"] = partners
+            (dst / "site.config.json").write_text(json.dumps(cfg))
         for f in ("eia_residential_monthly.json", "solar_pvwatts.json"):
             (dst / "data" / f).unlink(missing_ok=True)
         if live:
@@ -164,6 +168,40 @@ class FullBuild(unittest.TestCase):
         self.assertIn("July 2026", home)
         self.assertNotIn("/reports/", home)
         self.assertTrue((dist / "calculators" / "solar-payback" / "index.html").exists())
+
+    def test_supplier_choice_cost_fields_and_no_partner_buttons_by_default(self):
+        dist = self.build(live=False)
+        tx = (dist / "electricity-rates" / "texas" / "index.html").read_text()
+        oh = (dist / "electricity-rates" / "ohio" / "index.html").read_text()
+        fl = (dist / "electricity-rates" / "florida" / "index.html").read_text()
+        self.assertIn("Can you choose your electricity supplier in Texas?", tx)
+        self.assertIn("https://www.powertochoose.org/", tx)
+        self.assertIn("https://energychoice.ohio.gov/", oh)
+        self.assertNotIn("choose your electricity supplier", fl)
+        concrete = (dist / "calculators" / "concrete" / "index.html").read_text()
+        self.assertIn('name="price_yard"', concrete)
+        self.assertIn('placeholder="optional"', concrete)
+        self.assertIn('data-only="us"', concrete)
+        for page in (tx, concrete, (dist / "calculators" / "solar-payback" / "index.html").read_text()):
+            self.assertNotIn('rel="sponsored', page)      # no affiliate button until a url is configured
+        sitemap = (dist / "sitemap.xml").read_text()
+        self.assertIn("<loc>https://example.test/terms/</loc><lastmod>2026-11-15</lastmod>", sitemap)
+
+    def test_partner_buttons_appear_only_where_configured(self):
+        dist = self.build(live=False, partners={
+            "disclosure": "Partner link test.",
+            "solar_quotes": {"url": "https://partner.test/solar", "label": "Compare solar quotes"},
+            "electricity_plans": {"url": "", "label": "Compare plans in {state}", "state_urls": {"TX": "https://partner.test/tx"}},
+            "contractor_quotes": {"url": "http://not-https.test", "label": "Get quotes"}})
+        solar = (dist / "calculators" / "solar-payback" / "index.html").read_text()
+        self.assertIn('href="https://partner.test/solar" target="_blank" rel="sponsored nofollow noopener"', solar)
+        self.assertIn("Partner link test.", solar)
+        tx = (dist / "electricity-rates" / "texas" / "index.html").read_text()
+        self.assertIn("https://partner.test/tx", tx)
+        self.assertIn("Compare plans in Texas", tx)
+        self.assertNotIn("partner.test", (dist / "electricity-rates" / "ohio" / "index.html").read_text())
+        self.assertNotIn("not-https.test", (dist / "calculators" / "roofing" / "index.html").read_text())
+        self.assertIn("partner links", (dist / "about" / "index.html").read_text())
 
 
 if __name__ == "__main__":

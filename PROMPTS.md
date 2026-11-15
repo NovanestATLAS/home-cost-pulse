@@ -37,6 +37,8 @@ Port these as new calculators, one at a time: <LIST, e.g. deck boards, fence pos
 For each one:
 - add an entry in content/calculators.json with group "projects", plain-English intro, a "how" section
   that states the formula, 2 tips and 2 FAQs whose answers you verify by running the math;
+- add an optional price field ("optional": true, no default) so the result can show a material cost; never
+  put a default price in the code;
 - add the function in assets/calc-core.js;
 - add at least one test in tests/calc.test.js with a hand-worked answer;
 - run: node --test tests/calc.test.js, python -m unittest discover -s tests,
@@ -108,6 +110,8 @@ Goals: 1,000 premium sessions a month (Journey by Mediavine threshold; its guide
 4 months old, and the application reads Google Analytics, so GA4 stays connected and no ads before month 5),
 then grow toward 1,000 a day.
 AI answers take clicks from simple fact searches, so new pages should be tools, not facts.
+Money plan: partner links first (solar quotes, electricity plans in the 14 supplier-choice states, contractor
+quotes; slots are in site.config.json under partners), display ads later.
 Traffic plan: Pinterest pins (generated in dist/pins/), Reddit answers where allowed, monthly report
 shared on social, Google and Bing through sitemap and IndexNow.
 Each week I log: sessions, top pages, pins posted, new links, revenue.

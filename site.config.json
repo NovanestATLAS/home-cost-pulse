@@ -9,6 +9,8 @@
     "web3forms_access_key": "d5dd4775-3f49-4699-8e24-f912ad749d75"
   },
   "language": "en-US",
+  "content_updated": "2026-11-15",
+  "_content_updated_help": "Change this date when you edit texts or calculators. It becomes the sitemap date of pages that do not depend on EIA data.",
 
   "data": {
     "eia_months_to_fetch": 36,
@@ -32,6 +34,14 @@
       "bottom": ""
     },
     "ads_txt_lines": []
+  },
+
+  "partners": {
+    "_help": "Affiliate or partner links. A button appears only where its url starts with https://. Every button is marked rel=sponsored and shows the disclosure line. solar_quotes: solar calculator and state solar sections. electricity_plans: the 14 places where homes can choose a supplier; state_urls overrides the url for one state, for example {\"TX\": \"https://...\"}. contractor_quotes: under the result of the calculators listed.",
+    "disclosure": "Partner link: we may earn a commission if you use it. It never changes the numbers on this page.",
+    "solar_quotes": { "url": "", "label": "Compare solar quotes from local installers" },
+    "electricity_plans": { "url": "", "label": "Compare electricity plans in {state}", "state_urls": {} },
+    "contractor_quotes": { "url": "", "label": "Get quotes from local contractors", "calculators": ["roofing", "flooring-tile", "drywall", "concrete", "paint"] }
   },
 
   "analytics": {

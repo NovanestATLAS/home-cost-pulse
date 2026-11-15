@@ -252,3 +252,14 @@ summary { cursor: pointer; font-weight: 600; }
 .cf-status { margin: 0; font-weight: 600; }
 .cf-status.ok { color: var(--low); }
 .cf-status.err { color: var(--high); }
+
+/* fields that exist in one unit system only (for example price per bundle) */
+form.calc[data-units="metric"] .field[data-only="us"],
+form.calc:not([data-units="metric"]) .field[data-only="metric"] { display: none; }
+input::placeholder { color: var(--ink-2); opacity: 0.7; }
+
+/* partner (affiliate) button: always labeled */
+.partner { margin: 1.2rem 0; padding: 1rem 1.1rem; border: 1px solid var(--rule); border-left: 4px solid var(--volt); background: #fff; }
+.partner .btn { display: inline-block; background: var(--ink); color: #fff; font-weight: 700; text-decoration: none; padding: 0.7rem 1.1rem; border-radius: 4px; }
+.partner .btn:hover, .partner .btn:focus-visible { background: var(--wire); }
+.partner-note { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--ink-2); }
