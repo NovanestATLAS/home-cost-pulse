@@ -37,7 +37,7 @@
   "analytics": {
     "_help": "Cloudflare Web Analytics needs no cookie banner. GA4 is needed later for Journey by Mediavine.",
     "cloudflare_token": "",
-    "ga4_id": ""
+    "ga4_id": "G-YCPVNKJCR3"
   },
 
   "indexnow_key": "4de640b713ee76fb3bf242eb785f091f",
