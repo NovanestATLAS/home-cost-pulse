@@ -1,0 +1,48 @@
+{
+  "site_name": "Home Cost Pulse",
+  "tagline": "What your home really costs to run and build, from official data",
+  "site_url": "https://homecostpulse.com",
+  "publisher_name": "Novanest ATLAS",
+  "contact_email": "hello@homecostpulse.com",
+  "contact_form": {
+    "_help": "Web3Forms access key (free, web3forms.com). Messages reach your inbox and no email address is shown on the site. Leave empty to show contact_email instead.",
+    "web3forms_access_key": "d5dd4775-3f49-4699-8e24-f912ad749d75"
+  },
+  "language": "en-US",
+
+  "data": {
+    "eia_months_to_fetch": 36,
+    "pvwatts_refresh_days": 365,
+    "pvwatts_system": {
+      "system_capacity": 1,
+      "module_type": 0,
+      "losses": 14,
+      "array_type": 1,
+      "tilt": 20,
+      "azimuth": 180
+    }
+  },
+
+  "ads": {
+    "_help": "Paste the code your ad network gives you. head_html goes inside <head>. Slots are optional placements on every page. Leave everything empty to run without ads.",
+    "head_html": "",
+    "slots": {
+      "top": "",
+      "in_content": "",
+      "bottom": ""
+    },
+    "ads_txt_lines": []
+  },
+
+  "analytics": {
+    "_help": "Cloudflare Web Analytics needs no cookie banner. GA4 is needed later for Journey by Mediavine.",
+    "cloudflare_token": "",
+    "ga4_id": ""
+  },
+
+  "indexnow_key": "4de640b713ee76fb3bf242eb785f091f",
+
+  "pinterest_domain_verify": "",
+  "google_site_verification": "",
+  "bing_site_verification": ""
+}

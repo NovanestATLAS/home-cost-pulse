@@ -1,0 +1,122 @@
+# Home Cost Pulse: check for new official data every week, test, build and publish.
+#
+# Secrets (Settings > Secrets and variables > Actions > Secrets):
+#   EIA_API_KEY   free key from https://www.eia.gov/opendata/register.php
+#   NLR_API_KEY   free key from https://developer.nlr.gov/signup/
+# Optional variable (same page, "Variables" tab):
+#   DEPLOY_TARGET = cloudflare   when Cloudflare Pages publishes the site instead of GitHub Pages
+#
+# GitHub Pages: Settings > Pages > Build and deployment > Source = "GitHub Actions".
+
+name: Update data and deploy
+
+on:
+  schedule:
+    - cron: "23 7 * * 1"   # Mondays 07:23 UTC. EIA publishes each month's data around the 4th week of a later month.
+  workflow_dispatch:
+    inputs:
+      force_solar:
+        description: "Refresh the PVWatts solar data now"
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: site
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      data_changed: ${{ steps.commit.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Fetch new data (EIA monthly, PVWatts yearly)
+        env:
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+          NLR_API_KEY: ${{ secrets.NLR_API_KEY }}
+        run: |
+          python scripts/fetch_eia.py || echo "::warning::EIA fetch failed. The previous data stays in place."
+          python scripts/fetch_pvwatts.py ${{ inputs.force_solar && '--force' || '' }} || echo "::warning::PVWatts fetch failed. The previous data stays in place."
+
+      - name: Check the data (the run stops here if anything looks wrong)
+        run: python scripts/validate_data.py
+
+      - name: Save new data to the repository
+        id: commit
+        run: |
+          if [ -n "$(git status --porcelain data/)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/
+            git commit -m "data: official update $(date -u +%Y-%m-%d)"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run tests
+        run: |
+          python -m unittest discover -s tests
+          node --test tests/calc.test.js
+
+      - name: Read the GitHub Pages address
+        id: pages
+        if: vars.DEPLOY_TARGET != 'cloudflare'
+        uses: actions/configure-pages@v5
+
+      - name: Build the site
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: |
+          python -m pip install --quiet matplotlib
+          python scripts/build_site.py
+          python scripts/check_links.py
+
+      - name: Upload the site for GitHub Pages
+        if: vars.DEPLOY_TARGET != 'cloudflare'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    if: vars.DEPLOY_TARGET != 'cloudflare'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
+
+  notify-search-engines:
+    needs: [build, deploy]
+    if: always() && needs.build.result == 'success' && needs.build.outputs.data_changed == 'true' && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Wait for the new pages to go live, then ping IndexNow (Bing and others)
+        run: |
+          sleep 120
+          SKIP_IMAGES=1 python scripts/build_site.py
+          python scripts/indexnow_ping.py
