@@ -106,7 +106,8 @@ jobs:
 
   notify-search-engines:
     needs: [build, deploy]
-    if: always() && needs.build.result == 'success' && needs.build.outputs.data_changed == 'true' && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped')
+    # Runs when EIA data changed, and after every push to main (a content or design change).
+    if: always() && needs.build.result == 'success' && (needs.build.outputs.data_changed == 'true' || github.event_name == 'push') && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
