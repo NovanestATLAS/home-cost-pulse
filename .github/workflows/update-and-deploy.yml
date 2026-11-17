@@ -76,7 +76,7 @@ jobs:
       - name: Read the GitHub Pages address
         id: pages
         if: vars.DEPLOY_TARGET != 'cloudflare'
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Build the site
         env:
