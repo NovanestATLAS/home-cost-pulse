@@ -52,6 +52,12 @@
 
   "indexnow_key": "4de640b713ee76fb3bf242eb785f091f",
 
+  "site_verification": {
+    "_help": "Ownership checks from affiliate networks (FlexOffers, Impact...) or any other service. meta_tags: paste each <meta ...> tag exactly as given; it goes in the <head> of every page. files: file name -> exact content, written at the site root (for example {\"flexoffers123.txt\": \"abc\"}).",
+    "meta_tags": [],
+    "files": {}
+  },
+
   "pinterest_domain_verify": "",
   "google_site_verification": "",
   "bing_site_verification": ""

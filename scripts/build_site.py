@@ -13,6 +13,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -265,6 +266,10 @@ class Site:
                           ("bing_site_verification", "msvalidate.01"), ("pinterest_domain_verify", "p:domain_verify")):
             if cfg.get(key):
                 head.append(f'<meta name="{name}" content="{esc(cfg[key])}">')
+        for tag in (cfg.get("site_verification", {}).get("meta_tags") or []):
+            tag = str(tag).strip()
+            if re.fullmatch(r"<meta\s[^<>]*>", tag, re.I):          # only a single <meta ...> tag is accepted
+                head.append(tag)
         if cfg.get("ads", {}).get("head_html", "").strip():
             head.append(cfg["ads"]["head_html"])
         an = cfg.get("analytics", {})
@@ -845,6 +850,9 @@ class Site:
         lines = cfg.get("ads", {}).get("ads_txt_lines") or []
         if lines:
             (DIST_DIR / "ads.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+        for name, body in (cfg.get("site_verification", {}).get("files") or {}).items():
+            if re.fullmatch(r"[A-Za-z0-9._-]+\.(txt|html)", name or ""):   # a plain file at the site root, nothing else
+                (DIST_DIR / name).write_text(str(body), encoding="utf-8")
         key = cfg.get("indexnow_key", "")
         if key:
             (DIST_DIR / f"{key}.txt").write_text(key, encoding="utf-8")
