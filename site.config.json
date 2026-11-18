@@ -54,7 +54,7 @@
 
   "site_verification": {
     "_help": "Ownership checks from affiliate networks (FlexOffers, Impact...) or any other service. meta_tags: paste each <meta ...> tag exactly as given; it goes in the <head> of every page. files: file name -> exact content, written at the site root (for example {\"flexoffers123.txt\": \"abc\"}).",
-    "meta_tags": [],
+    "meta_tags": ["<meta name=\"fo-verify\" content=\"f8ef643c-1979-4f5a-8dec-d45052676abd\" />"],
     "files": {}
   },
 
